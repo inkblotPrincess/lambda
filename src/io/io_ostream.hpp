@@ -66,17 +66,12 @@ namespace lambda::io
 	[[nodiscard]] auto std_err() noexcept -> std::unique_ptr<ostream>;
 
 	template<class... stream_types>
-	requires (std::same_as<stream_types, std::unique_ptr<ostream>> && ...)
-	[[nodiscard]] auto synchronise(stream_types&&... Streams) noexcept -> std::vector<std::unique_ptr<ostream>>
+	requires (std::same_as<std::remove_cvref_t<stream_types>, std::unique_ptr<ostream>> && ...)
+	[[nodiscard]] auto synchronise(stream_types&&... Streams) noexcept -> std::array<std::unique_ptr<ostream>, sizeof...(Streams)>
 	{
-		std::vector<std::shared_ptr<ostream>> Shared;
-		Shared.reserve(sizeof...(Streams));
-
-		(Shared.push_back(std::move(Streams)), ...);
-
-		std::vector<std::unique_ptr<ostream>> Result;
-		Result.reserve(Shared.size());
-
+		auto Shared = std::array<std::shared_ptr<ostream>, sizeof...(Streams)>{std::shared_ptr<ostream>{std::move(Streams)}...};
+		auto Result = std::array<std::unique_ptr<ostream>, sizeof...(Streams)>{};
+		
 		for (std::size_t I = 0u; I < Shared.size(); ++I)
 		{
 			std::vector<std::weak_ptr<ostream>> SyncedStreams;
@@ -88,7 +83,7 @@ namespace lambda::io
 					SyncedStreams.emplace_back(Shared[J]);
 			}
 
-			Result.emplace_back(std::make_unique<synchronised_ostream>(Shared[I], std::move(SyncedStreams)));
+			Result[I] = std::make_unique<synchronised_ostream>(Shared[I], std::move(SyncedStreams));
 		}
 
 		return Result;

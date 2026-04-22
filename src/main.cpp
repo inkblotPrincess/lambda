@@ -8,6 +8,7 @@
  */
 
 // NOTE: system includes
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <cstddef>
