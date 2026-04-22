@@ -14,8 +14,10 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <format>
 #include <memory>
 #include <mutex>
+#include <stacktrace>
 #include <string>
 #include <string_view>
 #include <unordered_map>

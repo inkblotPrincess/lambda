@@ -10,3 +10,4 @@
 #pragma once
 
 #include "base_logging.hpp"
+#include "base_error.hpp"

@@ -46,13 +46,17 @@ namespace lambda::io
 
 	auto file_ostream::write(std::string_view Output) -> std::size_t
 	{
-		// TODO: assert that m_File is valid(?)
+		if (!m_File)
+		    return 0;
+
 		return std::fwrite(Output.data(), 1, Output.size(), m_File);
 	}
 
 	auto file_ostream::flush() -> void
 	{
-		// TODO: assert that m_File is valid(?)
+		if (!m_File)
+		    return;
+
 		std::fflush(m_File);
 	}
 
