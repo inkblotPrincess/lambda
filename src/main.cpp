@@ -26,25 +26,41 @@
 // NOTE: .hpp
 #include "base/base_inc.hpp"
 #include "io/io_inc.hpp"
+#include "runtime/runtime_inc.hpp"
 
 // NOTE: .cpp
 #include "base/base_inc.cpp"
 #include "io/io_inc.cpp"
+#include "runtime/runtime_inc.cpp"
 
-auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) -> int
+auto main(int argc, char* argv[]) -> int
 {
     using namespace lambda;
-    
-    auto SyncedStreams = io::synchronise(io::std_out(), io::std_err());
-    log::add_sink(std::make_unique<io::ostream_sink>(std::move(SyncedStreams[0]), log::level::debug, log::level::info));
-    log::add_sink(std::make_unique<io::ostream_sink>(std::move(SyncedStreams[1]), log::level::warn, log::level::fatal));
-    log::register_thread("main");
 
-    log::debug("Hello world");
-    log::info("Hello world");
-    log::warn("Hello world");
-    log::error("Hello world");
-    log::fatal("Hello world");
+    try
+    {
+        auto Arguments = runtime::command_line_arguments{
+            .Count     = static_cast<std::size_t>(argc + 1),
+            .Arguments = argc > 1 ? argv + 1 : nullptr
+        };
 
-    return 0;
+        runtime::application_run(Arguments);
+    }
+    catch (exception& Ex)
+    {
+        log::fatal("lambda::exception: {}", Ex.what());
+        return EXIT_FAILURE;
+    }
+    catch (std::exception& Ex)
+    {
+        log::fatal("std::exception: {}", Ex.what());
+        return EXIT_FAILURE;
+    }
+    catch (...)
+    {
+        log::fatal("Unrecognised exception");
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
