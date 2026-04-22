@@ -11,15 +11,15 @@
 
 namespace lambda
 {
-	template<class... arg_types>
-	auto expect(bool Predicate, std::format_string<arg_types...> Format, arg_types&&... Arguments) -> void
-	{
-		if (!Predicate)
-		{
-			log::fatal(Format, std::forward<arg_types>(Arguments)...);
-			log::fatal(" --> {}", std::stacktrace::current(1));
-			
-			std::terminate();
-		}
-	}
+    template<class... arg_types>
+    auto expect(bool Predicate, std::format_string<arg_types...> Format, arg_types&&... Arguments) -> void
+    {
+        if (!Predicate)
+        {
+            log::fatal(Format, std::forward<arg_types>(Arguments)...);
+            log::fatal(" --> {}", std::stacktrace::current(1));
+            
+            std::terminate();
+        }
+    }
 } // namespace lambda

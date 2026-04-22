@@ -9,86 +9,86 @@
 
 namespace lambda::io
 {
-	auto ostream::flush() -> void
-	{
-		// NOTE: intentionally left blank; we have this here to keep header cleaner
-	}
+    auto ostream::flush() -> void
+    {
+        // NOTE: intentionally left blank; we have this here to keep header cleaner
+    }
 
-	file_ostream::file_ostream(FILE* File) noexcept
-		: m_File{File}
-	{
+    file_ostream::file_ostream(FILE* File) noexcept
+        : m_File{File}
+    {
 
-	}
+    }
 
-	file_ostream::~file_ostream()
-	{
-		if (m_File)
-			std::fclose(m_File);
-	}
+    file_ostream::~file_ostream()
+    {
+        if (m_File)
+            std::fclose(m_File);
+    }
 
-	file_ostream::file_ostream(file_ostream&& Other) noexcept
-		: m_File{std::exchange(Other.m_File, nullptr)}
-	{
+    file_ostream::file_ostream(file_ostream&& Other) noexcept
+        : m_File{std::exchange(Other.m_File, nullptr)}
+    {
 
-	}
+    }
 
-	auto file_ostream::operator=(file_ostream&& Other) noexcept -> file_ostream&
-	{
-		if (this != &Other)
-		{
-			if (m_File)
-				std::fclose(m_File);
+    auto file_ostream::operator=(file_ostream&& Other) noexcept -> file_ostream&
+    {
+        if (this != &Other)
+        {
+            if (m_File)
+                std::fclose(m_File);
 
-			m_File = std::exchange(Other.m_File, nullptr);
-		}
-		return *this;
-	}
+            m_File = std::exchange(Other.m_File, nullptr);
+        }
+        return *this;
+    }
 
-	auto file_ostream::write(std::string_view Output) -> std::size_t
-	{
-		if (!m_File)
-		    return 0;
+    auto file_ostream::write(std::string_view Output) -> std::size_t
+    {
+        if (!m_File)
+            return 0;
 
-		return std::fwrite(Output.data(), 1, Output.size(), m_File);
-	}
+        return std::fwrite(Output.data(), 1, Output.size(), m_File);
+    }
 
-	auto file_ostream::flush() -> void
-	{
-		if (!m_File)
-		    return;
+    auto file_ostream::flush() -> void
+    {
+        if (!m_File)
+            return;
 
-		std::fflush(m_File);
-	}
+        std::fflush(m_File);
+    }
 
-	synchronised_ostream::synchronised_ostream(std::shared_ptr<ostream> Stream, std::vector<std::weak_ptr<ostream>> SyncedStreams) noexcept
-		: m_Stream{std::move(Stream)}
-		, m_SyncedStreams{std::move(SyncedStreams)}
-	{
+    synchronised_ostream::synchronised_ostream(std::shared_ptr<ostream> Stream, std::vector<std::weak_ptr<ostream>> SyncedStreams) noexcept
+        : m_Stream{std::move(Stream)}
+        , m_SyncedStreams{std::move(SyncedStreams)}
+    {
 
-	}
+    }
 
-	auto synchronised_ostream::write(std::string_view Output) -> std::size_t
-	{
-		for (auto& SyncedStream : m_SyncedStreams)
-		{
-			if (auto Stream = SyncedStream.lock())
-				Stream->flush();
-		}
-		return m_Stream->write(Output);
-	}
+    auto synchronised_ostream::write(std::string_view Output) -> std::size_t
+    {
+        for (auto& SyncedStream : m_SyncedStreams)
+        {
+            if (auto Stream = SyncedStream.lock())
+                Stream->flush();
+        }
+        return m_Stream->write(Output);
+    }
 
-	auto synchronised_ostream::flush() -> void
-	{
-		m_Stream->flush();
-	}
+    auto synchronised_ostream::flush() -> void
+    {
+        m_Stream->flush();
+    }
 
-	auto std_out() noexcept -> std::unique_ptr<ostream>
-	{
-		return std::make_unique<file_ostream>(stdout);
-	}
+    auto std_out() noexcept -> std::unique_ptr<ostream>
+    {
+        return std::make_unique<file_ostream>(stdout);
+    }
 
-	auto std_err() noexcept -> std::unique_ptr<ostream>
-	{
-		return std::make_unique<file_ostream>(stderr);
-	}
+    auto std_err() noexcept -> std::unique_ptr<ostream>
+    {
+        return std::make_unique<file_ostream>(stderr);
+    }
 } // namespace lambda::io

@@ -11,46 +11,46 @@
 
 namespace lambda::log
 {
-	enum class level
-	{
-		debug,
-		info,
-		warn,
-		error,
-		fatal
-	};
+    enum class level
+    {
+        debug,
+        info,
+        warn,
+        error,
+        fatal
+    };
 
-	// c++26: replace with enum to string
-	auto to_string(level Level) noexcept -> std::string_view;
+    // c++26: replace with enum to string
+    auto to_string(level Level) noexcept -> std::string_view;
 
-	struct sink_payload
-	{
-		std::chrono::system_clock::time_point Time;
+    struct sink_payload
+    {
+        std::chrono::system_clock::time_point Time;
 
-		level Level;
-		
-		std::string_view Message;
-		std::string_view ThreadName;
+        level Level;
+        
+        std::string_view Message;
+        std::string_view ThreadName;
 
-		std::size_t ThreadNamePadding;
-	};
+        std::size_t ThreadNamePadding;
+    };
 
-	struct sink
-	{
-		virtual ~sink() = default;
+    struct sink
+    {
+        virtual ~sink() = default;
 
-		virtual auto put(sink_payload const& Payload) -> void = 0;
-		virtual auto flush() -> void = 0;
-	};
+        virtual auto put(sink_payload const& Payload) -> void = 0;
+        virtual auto flush() -> void = 0;
+    };
 
-	auto add_sink(std::unique_ptr<sink> Sink) noexcept -> void;
+    auto add_sink(std::unique_ptr<sink> Sink) noexcept -> void;
 
-	auto register_thread(std::string ThreadName) -> void;
-	auto unregister_thread(std::thread::id ThreadId) -> void;
+    auto register_thread(std::string ThreadName) -> void;
+    auto unregister_thread(std::thread::id ThreadId) -> void;
 
-	auto put_message(level Level, std::string_view Message);
+    auto put_message(level Level, std::string_view Message);
 
-	template<class... argument_types>
+    template<class... argument_types>
     static auto debug(std::format_string<argument_types...> Format, argument_types&&... Arguments) -> void
     {
         put_message(level::debug, std::format(Format, std::forward<argument_types>(Arguments)...));

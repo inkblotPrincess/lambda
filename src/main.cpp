@@ -33,18 +33,18 @@
 
 auto main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[]) -> int
 {
-	using namespace lambda;
-	
-	auto SyncedStreams = io::synchronise(io::std_out(), io::std_err());
-	log::add_sink(std::make_unique<io::ostream_sink>(std::move(SyncedStreams[0]), log::level::debug, log::level::info));
-	log::add_sink(std::make_unique<io::ostream_sink>(std::move(SyncedStreams[1]), log::level::warn, log::level::fatal));
-	log::register_thread("main");
+    using namespace lambda;
+    
+    auto SyncedStreams = io::synchronise(io::std_out(), io::std_err());
+    log::add_sink(std::make_unique<io::ostream_sink>(std::move(SyncedStreams[0]), log::level::debug, log::level::info));
+    log::add_sink(std::make_unique<io::ostream_sink>(std::move(SyncedStreams[1]), log::level::warn, log::level::fatal));
+    log::register_thread("main");
 
-	log::debug("Hello world");
-	log::info("Hello world");
-	log::warn("Hello world");
-	log::error("Hello world");
-	log::fatal("Hello world");
+    log::debug("Hello world");
+    log::info("Hello world");
+    log::warn("Hello world");
+    log::error("Hello world");
+    log::fatal("Hello world");
 
-	return 0;
+    return 0;
 }
