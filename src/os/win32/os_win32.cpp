@@ -54,10 +54,18 @@ namespace lambda::os
                 };
 
                 if (!::RegisterClassExA(&WindowClass))
-                    win32::throw_last_error("Failed to register win32 window class");
+                    throw_last_error("Failed to register win32 window class");
             });
         }
     } // namespace detail
+
+    auto release_hwnd(::HWND& hwnd) noexcept -> void
+    {
+        if (hwnd)
+            ::DestroyWindow(hwnd);
+
+        hwnd = nullptr;
+    }
 
     window::window(window::config const& Config)
         : m_State{std::make_unique<window::state>()}
@@ -74,7 +82,7 @@ namespace lambda::os
 
         auto const WindowStyle = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
         if (!::AdjustWindowRect(&ClientRect, WindowStyle, FALSE))
-            win32::throw_last_error("Failed to adjust win32 window rect");
+            throw_last_error("Failed to adjust win32 window rect");
         
         auto const WindowHeight = ClientRect.bottom - ClientRect.top;
         auto const WindowWidth  = ClientRect.right - ClientRect.left;
@@ -95,7 +103,7 @@ namespace lambda::os
         );
 
         if (!Handle)
-            win32::throw_last_error("Failed to create win32 window");
+            throw_last_error("Failed to create win32 window");
         
         m_State->Handle.reset(Handle);
         m_State->Instance = Instance;
@@ -133,4 +141,4 @@ namespace lambda::os
             ::DispatchMessageA(&Message);
         }
     }
-} // namespace lambda::os
+} // namespace lambda::os::win32

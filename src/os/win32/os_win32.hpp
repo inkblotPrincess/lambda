@@ -9,7 +9,13 @@
 
 #pragma once
 
-namespace lambda::os::win32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+#pragma comment(lib, "user32")
+#pragma comment(lib, "gdi32")
+
+namespace lambda::os
 {
     [[noreturn]] auto throw_last_error(std::string_view Message, ::DWORD LastError = ::GetLastError())
     {
@@ -18,4 +24,12 @@ namespace lambda::os::win32
 
     auto release_hwnd(::HWND& hwnd) noexcept -> void;
     using hwnd_type = util::auto_release<::HWND, release_hwnd>;
+
+    struct window::state
+    {
+        hwnd_type Handle;
+        std::queue<window_event> EventQueue;
+
+        ::HINSTANCE Instance;
+    };
 } // namespace lambda::os::win32

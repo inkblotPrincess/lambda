@@ -32,14 +32,20 @@
 #include "base/base.hpp"
 #include "util/util.hpp"
 #include "io/io.hpp"
-#include "os/os_inc.hpp"
+#include "os/os.hpp"
+#if defined(LAMBDA_PLATFORM_WINDOWS)
+    #include "os/win32/os_win32.hpp"
+#endif
 #include "runtime/runtime_inc.hpp"
 
 // NOTE: .cpp
 #include "base/base.cpp"
 #include "util/util.cpp"
 #include "io/io.cpp"
-#include "os/os_inc.cpp"
+#include "os/os.cpp"
+#if defined(LAMBDA_PLATFORM_WINDOWS)
+    #include "os/win32/os_win32.cpp"
+#endif
 #include "runtime/runtime_inc.cpp"
 
 auto main(int argc, char* argv[]) -> int

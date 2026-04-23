@@ -21,7 +21,7 @@ if "%clang%"=="1"   set msvc=0 && echo [clang compile]
 set cl_common=      /I..\src\ /nologo /FC /EHsc /Z7 /Zc:preprocessor /std:c++latest /permissive- /W4 /WX
 set cl_debug=       cl /Od /Ob1 /DBUILD_DEBUG=1 %cl_common%
 set cl_release=     cl /O2 /DBUILD_DEBUG=0 %cl_common%
-set cl_link=        /link /MANIFEST:EMBED /INCREMENTAL:NO /opt:ref /opt:icf user32.lib gdi32.lib
+set cl_link=        /link /MANIFEST:EMBED /INCREMENTAL:NO /opt:ref /opt:icf
 set cl_out=         /out:
 
 if "%msvc%"=="1"    set compile_debug=%cl_debug%
