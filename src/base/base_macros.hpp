@@ -14,3 +14,6 @@
 #else
     #error Unrecognised platform
 #endif
+
+#define LAMBDA_CONCAT_IMPL(A, B) A##B
+#define LAMBDA_CONCAT_VAR(A, B)  LAMBDA_CONCAT_IMPL(A, B)
