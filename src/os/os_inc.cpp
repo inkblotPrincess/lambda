@@ -7,8 +7,7 @@
  * means.
  */
 
-#pragma once
-
-#include "base_context.hpp"
-#include "base_logging.hpp"
-#include "base_error.hpp"
+#if defined(LAMBDA_PLATFORM_WINDOWS)
+    #include "win32/os_win32_core.cpp"
+    #include "win32/os_win32_window.cpp"
+#endif

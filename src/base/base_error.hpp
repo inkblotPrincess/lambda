@@ -31,6 +31,25 @@ namespace lambda
         std::string m_What;
     };
 
+    class system_exception : public exception
+    {
+    public:
+        system_exception(std::error_code ErrorCode, std::string_view Message)
+            : exception{"System Error: {} ({}: {})", Message, ErrorCode.value(), ErrorCode.message()}
+            , m_ErrorCode{ErrorCode}
+        {
+
+        }
+
+        auto error_code() const noexcept -> std::error_code
+        {
+            return m_ErrorCode;
+        }
+
+    private:
+        std::error_code m_ErrorCode;
+    };
+
     template<class... arg_types>
     auto expect(bool Predicate, std::format_string<arg_types...> Format, arg_types&&... Arguments) -> void
     {

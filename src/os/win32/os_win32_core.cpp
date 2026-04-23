@@ -7,8 +7,13 @@
  * means.
  */
 
-#pragma once
+namespace lambda::os::win32
+{
+    auto release_hwnd(::HWND& hwnd) noexcept -> void
+    {
+        if (hwnd)
+            ::DestroyWindow(hwnd);
 
-#include "base_context.hpp"
-#include "base_logging.hpp"
-#include "base_error.hpp"
+        hwnd = nullptr;
+    }
+} // namespace lambda::os::win32

@@ -9,6 +9,13 @@
 
 #pragma once
 
-#include "base_context.hpp"
-#include "base_logging.hpp"
-#include "base_error.hpp"
+namespace lambda::os
+{
+    struct window::state
+    {
+        win32::hwnd_type Handle;
+        std::queue<window_event> EventQueue;
+
+        ::HINSTANCE Instance;
+    };
+} // namespace lambda::os

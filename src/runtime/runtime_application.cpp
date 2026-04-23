@@ -21,5 +21,24 @@ namespace lambda::runtime
         log::warn("Hello world");
         log::error("Hello world");
         log::fatal("Hello world");
+
+        auto Window = os::window{{.Height = 720u, .Width = 1080u, .Title = "Lambda :3"}};
+
+        auto Running = true;
+        while (Running)
+        {
+            Window.handle_events([&Running](os::window_event const& Event) noexcept {
+                Event >> util::match {
+                    [&Running]([[maybe_unused]] os::window_quit_event const& Event) noexcept
+                    {
+                        Running = false;
+                        log::info("Window quit event posted");
+                    }
+                };
+
+                // keep processing events if no quit has been requested
+                return Running;
+            });
+        }
     }
 } // namespace lambda::runtime

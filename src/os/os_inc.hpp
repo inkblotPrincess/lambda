@@ -9,6 +9,12 @@
 
 #pragma once
 
-#include "base_context.hpp"
-#include "base_logging.hpp"
-#include "base_error.hpp"
+#include "os_window.hpp"
+
+#if defined(LAMBDA_PLATFORM_WINDOWS)
+    #define WIN32_MEAN_AND_LEAN
+    #include <windows.h>
+    
+    #include "win32/os_win32_core.hpp"
+    #include "win32/os_win32_window.hpp"
+#endif
