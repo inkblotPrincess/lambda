@@ -16,6 +16,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <format>
+#include <functional>
 #include <memory>
 #include <mutex>
 #include <queue>

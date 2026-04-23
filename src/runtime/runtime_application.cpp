@@ -25,20 +25,22 @@ namespace lambda::runtime
         auto Window = os::window{{.Height = 720u, .Width = 1080u, .Title = "Lambda :3"}};
 
         auto Running = true;
+        Window.set_event_handler([&Running](os::window_event const& Event) noexcept {
+            Event >> util::match {
+                [&Running]([[maybe_unused]] os::window_quit_event const& Event) noexcept
+                {
+                    Running = false;
+                    log::info("Window quit event posted");
+                }
+            };
+
+            // keep processing events if no quit has been requested
+            return Running;
+        });
+
         while (Running)
         {
-            Window.handle_events([&Running](os::window_event const& Event) noexcept {
-                Event >> util::match {
-                    [&Running]([[maybe_unused]] os::window_quit_event const& Event) noexcept
-                    {
-                        Running = false;
-                        log::info("Window quit event posted");
-                    }
-                };
-
-                // keep processing events if no quit has been requested
-                return Running;
-            });
+            Window.process_events();
         }
     }
 } // namespace lambda::runtime

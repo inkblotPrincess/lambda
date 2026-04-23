@@ -119,7 +119,12 @@ namespace lambda::os
         return std::nullopt;
     }
 
-    auto window::process_events() noexcept -> void
+    auto window::raw_handle() noexcept -> void*
+    {
+        return static_cast<void*>(*m_State->Handle);
+    }
+
+    auto window::update_event_queue() noexcept -> void
     {
         auto Message = ::MSG{};
         while (::PeekMessageA(&Message, *m_State->Handle, 0, 0, PM_REMOVE) != 0)

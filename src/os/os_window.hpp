@@ -43,26 +43,16 @@ namespace lambda::os
         window(window&& Other) noexcept;
         auto operator=(window&& Other) noexcept -> window&;
 
-        template<class handler_type>
-        requires util::function_type<handler_type, bool, window_event const&>
-        auto handle_events(handler_type&& Handler) noexcept -> void
-        {
-            process_events();
-
-            for (auto Event = poll_event(); Event.has_value(); Event = poll_event())
-            {
-                if (!std::invoke(Handler, *Event))
-                    break;
-            }
-        }
-
+        auto process_events() noexcept -> void;
         [[nodiscard]] auto raw_handle() noexcept -> void*;
+        auto set_event_handler(std::function<bool(window_event const&)> EventHandler) noexcept -> void;
 
     private:
         [[nodiscard]] auto poll_event() noexcept -> std::optional<window_event>;
-        auto process_events() noexcept -> void;
+        auto update_event_queue() noexcept -> void;
 
     private:
         std::unique_ptr<window::state> m_State;
+        std::function<bool(window_event const&)> m_EventHandler;
     };
 } // namespace lambda::os

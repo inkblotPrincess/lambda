@@ -7,6 +7,8 @@
  * means.
  */
 
+#include "os_window.cpp"
+
 #if defined(LAMBDA_PLATFORM_WINDOWS)
     #include "win32/os_win32_core.cpp"
     #include "win32/os_win32_window.cpp"
