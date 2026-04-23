@@ -31,14 +31,14 @@
 // NOTE: .hpp
 #include "base/base.hpp"
 #include "util/util_inc.hpp"
-#include "io/io_inc.hpp"
+#include "io/io.hpp"
 #include "os/os_inc.hpp"
 #include "runtime/runtime_inc.hpp"
 
 // NOTE: .cpp
 #include "base/base.cpp"
 #include "util/util_inc.cpp"
-#include "io/io_inc.cpp"
+#include "io/io.cpp"
 #include "os/os_inc.cpp"
 #include "runtime/runtime_inc.cpp"
 
