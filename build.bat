@@ -29,6 +29,12 @@ if "%msvc%"=="1"    set compile_release=%cl_release%
 if "%msvc%"=="1"    set compile_link=%cl_link%
 if "%msvc%"=="1"    set out=%cl_out%
 
+:: TODO: add clang support
+if "%clang%"=="1" (
+    echo [ERROR] clang not currently supported
+    exit /b 1
+)
+
 if "%debug%"=="1"   set compile=%compile_debug%
 if "%release%"=="1" set compile=%compile_release%
 
