@@ -36,7 +36,7 @@
 #if defined(LAMBDA_PLATFORM_WINDOWS)
     #include "os/win32/os_win32.hpp"
 #endif
-#include "runtime/runtime_inc.hpp"
+#include "runtime/runtime.hpp"
 
 // NOTE: .cpp
 #include "base/base.cpp"
@@ -46,7 +46,7 @@
 #if defined(LAMBDA_PLATFORM_WINDOWS)
     #include "os/win32/os_win32.cpp"
 #endif
-#include "runtime/runtime_inc.cpp"
+#include "runtime/runtime.cpp"
 
 auto main(int argc, char* argv[]) -> int
 {
