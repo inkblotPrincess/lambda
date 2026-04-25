@@ -109,11 +109,6 @@ namespace lambda::os
         m_State->Instance = Instance;
     }
 
-    window::~window() = default;
-
-    window::window(window&& Other) noexcept = default;
-    auto window::operator=(window&& Other) noexcept -> window& = default;
-
     auto window::poll_event() noexcept -> std::optional<window_event>
     {
         if (!std::ranges::empty(m_State->EventQueue))

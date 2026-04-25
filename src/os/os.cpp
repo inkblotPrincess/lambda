@@ -9,6 +9,11 @@
 
 namespace lambda::os
 {
+    window::~window() = default;
+
+    window::window(window&& Other) noexcept = default;
+    auto window::operator=(window&& Other) noexcept -> window& = default;
+
     auto window::process_events() noexcept -> void
     {
         update_event_queue();
