@@ -53,8 +53,7 @@ namespace lambda::os
                     .lpszClassName = WindowClassName
                 };
 
-                if (!::RegisterClassExA(&WindowClass))
-                    throw_last_error("Failed to register win32 window class");
+                ensure_os(::RegisterClassExA(&WindowClass), "Failed to register win32 window class");
             });
         }
     } // namespace detail
@@ -69,6 +68,8 @@ namespace lambda::os
 
     window::window(window::config const& Config)
         : m_State{std::make_unique<window::state>()}
+        , m_EventHandler{}
+        , m_Mode{window_mode::windowed}
     {
         auto const Instance = ::GetModuleHandleA(nullptr);
         detail::register_class(Instance);
@@ -81,14 +82,13 @@ namespace lambda::os
         };
 
         auto const WindowStyle = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
-        if (!::AdjustWindowRect(&ClientRect, WindowStyle, FALSE))
-            throw_last_error("Failed to adjust win32 window rect");
+        ensure_os(::AdjustWindowRect(&ClientRect, WindowStyle, FALSE), "Failed to adjust win32 window rect");
         
         auto const WindowHeight = ClientRect.bottom - ClientRect.top;
         auto const WindowWidth  = ClientRect.right - ClientRect.left;
 
         auto const Handle = ::CreateWindowExA(
-            0,
+            WS_EX_APPWINDOW,
             detail::WindowClassName,
             Config.Title.data(),
             WindowStyle,
@@ -101,12 +101,10 @@ namespace lambda::os
             Instance,
             m_State.get()
         );
-
-        if (!Handle)
-            throw_last_error("Failed to create win32 window");
-        
+        ensure_os(Handle, "Failed to create win32 window");
         m_State->Handle.reset(Handle);
-        m_State->Instance = Instance;
+
+        set_mode(Config.StartMode);
     }
 
     auto window::poll_event() noexcept -> std::optional<window_event>
@@ -125,6 +123,63 @@ namespace lambda::os
     auto window::raw_handle() noexcept -> void*
     {
         return static_cast<void*>(*m_State->Handle);
+    }
+
+    auto window::set_mode(window_mode Mode) -> void
+    {
+        if (m_Mode == Mode)
+            return;
+
+        switch (Mode)
+        {
+            using enum window_mode;
+            
+            case fullscreen:
+            {
+                ensure_os(::GetWindowPlacement(*m_State->Handle, &m_State->Placement), "GetWindowPlacement failed");
+
+                auto const Style = ::GetWindowLongPtrA(*m_State->Handle, GWL_STYLE);
+                ensure_os(::SetWindowLongPtrA(*m_State->Handle, GWL_STYLE, Style & ~WS_OVERLAPPEDWINDOW) != 0,"SetWindowLongPtrA failed");
+
+                auto const Monitor = ::MonitorFromWindow(*m_State->Handle, MONITOR_DEFAULTTONEAREST);
+                auto MonitorInfo = ::MONITORINFO{.cbSize = sizeof(::MONITORINFO)};
+                ensure_os(::GetMonitorInfoA(Monitor, &MonitorInfo), "GetMonitorInfo failed");
+
+                ensure_os(
+                    ::SetWindowPos(
+                        *m_State->Handle,
+                        HWND_TOP,
+                        MonitorInfo.rcMonitor.left,
+                        MonitorInfo.rcMonitor.top,
+                        MonitorInfo.rcMonitor.right  - MonitorInfo.rcMonitor.left,
+                        MonitorInfo.rcMonitor.bottom - MonitorInfo.rcMonitor.top,
+                        SWP_NOOWNERZORDER | SWP_FRAMECHANGED
+                    ),
+                    "SetWindowPos failed"
+                );
+            } break;
+            
+            case windowed:
+            {
+                auto const Style = ::GetWindowLongPtrA(*m_State->Handle, GWL_STYLE);
+                ensure_os(::SetWindowLongPtrA(*m_State->Handle, GWL_STYLE, Style | WS_OVERLAPPEDWINDOW) != 0, "SetWindowLongPtrA restore failed");
+                ensure_os(::SetWindowPlacement(*m_State->Handle, &m_State->Placement), "SetWindowPlacement failed");
+
+                ensure_os(
+                    ::SetWindowPos(
+                        *m_State->Handle,
+                        nullptr,
+                        0, 0, 0, 0,
+                        SWP_NOMOVE | SWP_NOSIZE |
+                        SWP_NOZORDER | SWP_NOOWNERZORDER |
+                        SWP_FRAMECHANGED
+                    ),
+                    "SetWindowPos restore failed"
+                );
+            } break;
+        }
+
+        m_Mode = Mode;
     }
 
     auto window::update_event_queue() noexcept -> void

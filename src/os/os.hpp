@@ -18,6 +18,12 @@ namespace lambda::os
 
     using window_event = std::variant<window_quit_event>;
 
+    enum class window_mode
+    {
+        fullscreen,
+        windowed
+    };
+
     class window
     {
     public:
@@ -27,6 +33,8 @@ namespace lambda::os
             std::uint32_t Width;
 
             std::string_view Title;
+
+            window_mode StartMode;
         };
 
         struct state;
@@ -46,6 +54,7 @@ namespace lambda::os
         auto process_events() noexcept -> void;
         [[nodiscard]] auto raw_handle() noexcept -> void*;
         auto set_event_handler(std::function<bool(window_event const&)> EventHandler) noexcept -> void;
+        auto set_mode(window_mode Mode) -> void;
 
     private:
         [[nodiscard]] auto poll_event() noexcept -> std::optional<window_event>;
@@ -54,5 +63,6 @@ namespace lambda::os
     private:
         std::unique_ptr<window::state> m_State;
         std::function<bool(window_event const&)> m_EventHandler;
+        window_mode m_Mode;
     };
 } // namespace lambda::os

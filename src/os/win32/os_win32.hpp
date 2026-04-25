@@ -17,9 +17,10 @@
 
 namespace lambda::os
 {
-    [[noreturn]] auto throw_last_error(std::string_view Message, ::DWORD LastError = ::GetLastError())
+    auto ensure_os(bool Predicate, std::string_view Message) -> void
     {
-        throw system_exception{std::error_code{static_cast<int>(LastError), std::system_category()}, Message};
+        if (::DWORD LastError = ::GetLastError(); !Predicate && (LastError != 0))
+            throw system_exception{std::error_code{static_cast<int>(LastError), std::system_category()}, Message};
     }
 
     auto release_hwnd(::HWND& hwnd) noexcept -> void;
@@ -30,6 +31,6 @@ namespace lambda::os
         hwnd_type Handle;
         std::queue<window_event> EventQueue;
 
-        ::HINSTANCE Instance;
+        ::WINDOWPLACEMENT Placement = {.length = sizeof(::WINDOWPLACEMENT)};
     };
 } // namespace lambda::os::win32

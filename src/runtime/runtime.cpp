@@ -22,12 +22,12 @@ namespace lambda::runtime
         log::error("Hello world");
         log::fatal("Hello world");
 
-        auto Window = os::window{{.Height = 720u, .Width = 1080u, .Title = "Lambda :3"}};
+        auto Window = os::window{{.Height = 720u, .Width = 1080u, .Title = "Lambda :3", .StartMode = os::window_mode::windowed}};
 
         auto Running = true;
         Window.set_event_handler([&Running](os::window_event const& Event) noexcept {
             Event >> util::match {
-                [&Running]([[maybe_unused]] os::window_quit_event const& Event) noexcept
+                [&Running]([[maybe_unused]] os::window_quit_event const& QuitEvent) noexcept
                 {
                     Running = false;
                     log::info("Window quit event posted");
