@@ -23,6 +23,7 @@ namespace lambda::runtime
         log::fatal("Hello world");
 
         auto Window = os::window{{.Height = 720u, .Width = 1080u, .Title = "Lambda :3", .StartMode = os::window_mode::windowed}};
+        auto Renderer = render::renderer{render::api::opengl, Window};
 
         auto Running = true;
         Window.set_event_handler([&Running](os::window_event const& Event) noexcept {
@@ -41,6 +42,11 @@ namespace lambda::runtime
         while (Running)
         {
             Window.process_events();
+            if (!Running)
+                break;
+
+            Renderer.begin_frame();
+            Renderer.end_frame();
         }
     }
 } // namespace lambda::runtime

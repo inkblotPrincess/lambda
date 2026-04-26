@@ -9,8 +9,8 @@
 
 #pragma once
 
-#define LAMBDA_DEFER(Function) \
-    auto LAMBDA_CONCAT_VAR(Defer, __COUNTER__) = ::lambda::util::deferred_function{Function}
+#define LAMBDA_DEFER(...) \
+    auto LAMBDA_CONCAT_VAR(Defer, __COUNTER__) = ::lambda::util::deferred_function{__VA_ARGS__}
 
 namespace lambda::util
 {
@@ -35,7 +35,7 @@ namespace lambda::util
     }
 
     template<class func_type>
-    requires function_type<func_type, void, void> && std::is_nothrow_invocable_v<func_type>
+    requires std::invocable<func_type&> && std::same_as<std::invoke_result_t<func_type&>, void>
     class [[nodiscard]] deferred_function
     {
     public:

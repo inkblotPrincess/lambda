@@ -9,12 +9,6 @@
 
 #pragma once
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-
-#pragma comment(lib, "user32")
-#pragma comment(lib, "gdi32")
-
 namespace lambda::os
 {
     auto ensure_os(bool Predicate, std::string_view Message) -> void

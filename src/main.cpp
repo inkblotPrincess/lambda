@@ -28,25 +28,42 @@
 #include <variant>
 #include <vector>
 
-// NOTE: .hpp
 #include "base/base.hpp"
+#if defined(LAMBDA_PLATFORM_WINDOWS)
+    #define WIN32_LEAN_AND_MEAN
+    #include <windows.h>
+    #include <GL/gl.h>
+
+    #pragma comment(lib, "gdi32")
+    #pragma comment(lib, "opengl32")
+    #pragma comment(lib, "user32")
+#endif
+
+// NOTE: .hpp
 #include "util/util.hpp"
 #include "io/io.hpp"
 #include "os/os.hpp"
+#include "render/render.hpp"
+#include "render/opengl/render_opengl.hpp"
+#include "runtime/runtime.hpp"
+
 #if defined(LAMBDA_PLATFORM_WINDOWS)
     #include "os/win32/os_win32.hpp"
 #endif
-#include "runtime/runtime.hpp"
 
 // NOTE: .cpp
 #include "base/base.cpp"
 #include "util/util.cpp"
 #include "io/io.cpp"
 #include "os/os.cpp"
+#include "render/render.cpp"
+#include "render/opengl/render_opengl.cpp"
+#include "runtime/runtime.cpp"
+
 #if defined(LAMBDA_PLATFORM_WINDOWS)
     #include "os/win32/os_win32.cpp"
+    #include "render/opengl/render_opengl_win32.cpp"
 #endif
-#include "runtime/runtime.cpp"
 
 auto main(int argc, char* argv[]) -> int
 {
