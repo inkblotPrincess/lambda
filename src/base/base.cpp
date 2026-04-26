@@ -11,20 +11,13 @@ namespace lambda
 {
     namespace detail
     {
-        struct logging_state
-        {
-            std::atomic<std::size_t> MaxThreadNameLength = 3;
+        std::atomic<std::size_t> MaxThreadNameLength = 3;
 
-            // TODO: Replace with concurrent wrapper around unordered_map
-            std::mutex ThreadNamesMutex;
-            std::unordered_map<std::thread::id, std::string> ThreadNames;
+        std::mutex ThreadNamesMutex;
+        std::unordered_map<std::thread::id, std::string> ThreadNames;
 
-            // TODO: Replace with concurrent wrapper around vector
-            std::mutex SinksMutex;
-            std::vector<std::unique_ptr<log::sink>> Sinks;
-        };
-
-        auto LoggingState = logging_state{};
+        std::mutex SinksMutex;
+        std::vector<std::unique_ptr<log::sink>> Sinks;
 
         auto put_message(log::level Level, std::string_view Message, std::string_view ThreadName)
         {
@@ -33,11 +26,11 @@ namespace lambda
                 .Level             = Level,
                 .Message           = Message,
                 .ThreadName        = ThreadName,
-                .ThreadNamePadding = LoggingState.MaxThreadNameLength.load()
+                .ThreadNamePadding = MaxThreadNameLength.load()
             };
 
-            auto const Lock = std::lock_guard{LoggingState.SinksMutex};
-            for (auto& Sink : LoggingState.Sinks)
+            auto const Lock = std::lock_guard{SinksMutex};
+            for (auto& Sink : Sinks)
                 Sink->put(Payload);
         }
     } // namespace detail
@@ -61,54 +54,54 @@ namespace lambda
 
         auto add_sink(std::unique_ptr<sink> Sink) noexcept -> void
         {
-            auto const Lock = std::lock_guard{detail::LoggingState.SinksMutex};
-            detail::LoggingState.Sinks.push_back(std::move(Sink));
+            auto const Lock = std::lock_guard{detail::SinksMutex};
+            detail::Sinks.push_back(std::move(Sink));
         }
 
         auto register_thread(std::string ThreadName) -> void
         {
             auto const Id = std::this_thread::get_id();
             {
-                auto const Lock = std::lock_guard{detail::LoggingState.ThreadNamesMutex};
-                if (auto const It = detail::LoggingState.ThreadNames.find(Id); It != detail::LoggingState.ThreadNames.end())
+                auto Lock = std::lock_guard{detail::ThreadNamesMutex};
+
+                if (auto It = detail::ThreadNames.find(Id); It != detail::ThreadNames.end())
                     return;
 
-                detail::LoggingState.ThreadNames[Id] = ThreadName;
+                detail::ThreadNames[Id] = ThreadName;
             }
 
-            auto CurrentMaxLength = detail::LoggingState.MaxThreadNameLength.load();
+            auto CurrentMaxLength = detail::MaxThreadNameLength.load();
             while (
                 CurrentMaxLength < ThreadName.size() && 
-                !detail::LoggingState.MaxThreadNameLength.compare_exchange_weak(CurrentMaxLength, ThreadName.size()));
+                !detail::MaxThreadNameLength.compare_exchange_weak(CurrentMaxLength, ThreadName.size()));
 
             info("Thread '{}' registered", ThreadName);
         }
         
         auto unregister_thread(std::thread::id ThreadId) -> void
         {
-            std::string ThreadName;
+            auto ThreadName = std::string{};
             {
-                auto const Lock = std::lock_guard{detail::LoggingState.ThreadNamesMutex};
+                auto Lock = std::lock_guard{detail::ThreadNamesMutex};
 
-                auto const It = detail::LoggingState.ThreadNames.find(ThreadId);
-                if (It == detail::LoggingState.ThreadNames.end())
+                auto It = detail::ThreadNames.find(ThreadId);
+                if (It == detail::ThreadNames.end())
                     return;
 
                 ThreadName = std::move(It->second);
-                detail::LoggingState.ThreadNames.erase(It);
+                detail::ThreadNames.erase(It);
             }
             info("Thread '{}' unregistered", ThreadName);
         }
 
         auto put_message(level Level, std::string_view Message)
         {
-            static constexpr std::string_view UnknownThread = "???";
-
-            auto const Id = std::this_thread::get_id();
-            auto ThreadName = UnknownThread;
+            auto ThreadName = std::string{"???"};
             {
-                auto const Lock = std::lock_guard{detail::LoggingState.ThreadNamesMutex};
-                if (auto const It = detail::LoggingState.ThreadNames.find(Id); It != detail::LoggingState.ThreadNames.end())
+                auto Lock = std::lock_guard{detail::ThreadNamesMutex};
+
+                auto const Id = std::this_thread::get_id();
+                if (auto It = detail::ThreadNames.find(Id); It != detail::ThreadNames.end())
                     ThreadName = It->second;
             }
 
