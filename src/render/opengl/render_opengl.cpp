@@ -38,8 +38,9 @@ namespace lambda::render::opengl
                 case clear:
                 {
                     auto const& Command = *static_cast<clear_command const*>(Data);
+                    auto const Colour = Command.RGBA;
 
-                    ::glClearColor(Command.R, Command.G, Command.B, Command.A);
+                    ::glClearColor(Colour.X, Colour.Y, Colour.Z, Colour.W);
                     ::glClear(GL_COLOR_BUFFER_BIT);
                 } break;
             }

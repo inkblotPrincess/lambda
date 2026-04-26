@@ -12,6 +12,7 @@
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <cmath>
 #include <concepts>
 #include <condition_variable>
 #include <coroutine>
@@ -48,6 +49,7 @@ using namespace std::literals;
 
 // NOTE: .hpp
 #include "util/util.hpp"
+#include "math/math.hpp"
 #include "io/io.hpp"
 #include "os/os.hpp"
 #include "concurrency/concurrency.hpp"

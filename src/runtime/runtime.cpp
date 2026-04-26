@@ -11,21 +11,17 @@ namespace lambda::runtime
 {
     namespace detail
     {
-        auto change_clear_colour(con::awaitable_manager& awaitable, float* R, float* G, float* B) -> con::task
+        auto change_clear_colour(con::awaitable_manager& awaitable, math::vec3f& RGB) -> con::task
         {
             while (true)
             {
                 co_await awaitable(1s);
                 
-                *R += 0.15f;
-                if (*R > 1.0f)
-                    *R -= 1.0f;
-                *G += 0.21f;
-                if (*G > 1.0f)
-                    *G -= 1.0f;
-                *B += 0.09f;
-                if (*B > 1.0f)
-                    *B -= 1.0f;
+                RGB += math::vec3f{0.05f, 0.2f, 0.6f};
+                
+                if (RGB.X > 1.0f) RGB.X -= 1.0f;
+                if (RGB.Y > 1.0f) RGB.Y -= 1.0f;
+                if (RGB.Z > 1.0f) RGB.Z -= 1.0f;
             }
         }
     } // namespace detail
@@ -57,10 +53,8 @@ namespace lambda::runtime
         auto ThreadPool = con::thread_pool{};
         auto AwaitableManager = con::awaitable_manager{ThreadPool};
 
-        float R = 0.0f;
-        float G = 0.0f;
-        float B = 0.0f;
-        detail::change_clear_colour(AwaitableManager, &R, &G, &B);
+        auto RGB = math::vec3f{0.0f};
+        detail::change_clear_colour(AwaitableManager, RGB);
 
         while (Running)
         {
@@ -73,7 +67,7 @@ namespace lambda::runtime
 
             Renderer.begin_frame();
             Renderer.submit([=](render::command_list& Commands) {
-                Commands.clear(R, G, B, 1.0f);
+                Commands.clear(RGB, 1.0f);
             });
             Renderer.end_frame();
         }

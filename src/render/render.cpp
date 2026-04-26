@@ -41,9 +41,19 @@ namespace lambda::render
 
     }
 
-    auto command_list::clear(float R, float G, float B, float A)
+    auto command_list::clear(float R, float G, float B, float A) -> void
     {
-        m_Buffer.push(command_type::clear, clear_command{R, G, B, A});
+        clear(math::vec4f{R, G, B, A});
+    }
+
+    auto command_list::clear(math::vec3f RGB, float A) -> void
+    {
+        clear(math::vec4f{RGB, A});
+    }
+ 
+    auto command_list::clear(math::vec4f RGBA) -> void
+    {
+        m_Buffer.push(command_type::clear, clear_command{RGBA});
     }
 
     renderer::renderer(api Api, os::window& Window)

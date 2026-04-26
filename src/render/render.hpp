@@ -16,10 +16,7 @@ namespace lambda::render
 
     struct clear_command
     {
-        float R;
-        float G;
-        float B;
-        float A;
+        math::vec4f RGBA;
     };
 
     class command_buffer
@@ -78,7 +75,9 @@ namespace lambda::render
     public:
         command_list(command_buffer& Buffer);
 
-        auto clear(float R, float G, float B, float A);
+        auto clear(float R, float G, float B, float A) -> void;
+        auto clear(math::vec3f RGB, float A = 1.0f) -> void;
+        auto clear(math::vec4f RGBA) -> void;
 
     private:
         command_buffer& m_Buffer;
