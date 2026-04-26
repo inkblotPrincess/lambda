@@ -77,7 +77,7 @@ namespace lambda::render::opengl
         auto operator=(opengl_backend&& Other) noexcept -> opengl_backend& = default;
 
         auto begin_frame() -> void override;
-        auto end_frame() -> void override;
+        auto end_frame(command_buffer const& Commands) -> void override;
 
     private:
         context m_Context;

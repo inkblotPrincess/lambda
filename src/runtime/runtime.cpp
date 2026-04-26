@@ -46,6 +46,9 @@ namespace lambda::runtime
                 break;
 
             Renderer.begin_frame();
+            Renderer.submit([](render::command_list& Commands) {
+                Commands.clear(0.0f, 1.0f, 0.0f, 1.0f);
+            });
             Renderer.end_frame();
         }
     }

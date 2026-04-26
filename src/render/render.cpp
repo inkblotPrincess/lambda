@@ -25,20 +25,43 @@ namespace lambda::render
         }
     } // namespace detail
 
+    command_buffer::command_buffer(std::size_t Capacity)
+    {
+        m_Buffer.reserve(Capacity);
+    }
+
+    auto command_buffer::clear() noexcept -> void
+    {
+        m_Buffer.clear();
+    }
+
+    command_list::command_list(command_buffer& Buffer)
+        : m_Buffer{Buffer}
+    {
+
+    }
+
+    auto command_list::clear(float R, float G, float B, float A)
+    {
+        m_Buffer.push(command_type::clear, clear_command{R, G, B, A});
+    }
+
     renderer::renderer(api Api, os::window& Window)
         : m_Window{Window}
         , m_Backend{detail::make_api(Api, m_Window)}
+        , m_Buffer{1024 * 1024}
     {
 
     }
 
     auto renderer::begin_frame() -> void
     {
+        m_Buffer.clear();
         m_Backend->begin_frame();
     }
 
     auto renderer::end_frame() -> void
     {
-        m_Backend->end_frame();
+        m_Backend->end_frame(m_Buffer);
     }
 } // namespace lambda::render

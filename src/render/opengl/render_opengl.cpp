@@ -28,10 +28,22 @@ namespace lambda::render::opengl
 
     }
 
-    auto opengl_backend::end_frame() -> void
+    auto opengl_backend::end_frame(command_buffer const& Commands) -> void
     {
-        ::glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-        ::glClear(GL_COLOR_BUFFER_BIT);
+        Commands.for_each([](command_type Type, void const* Data) {
+            switch (Type)
+            {
+                using enum command_type;
+                
+                case clear:
+                {
+                    auto const& Command = *static_cast<clear_command const*>(Data);
+
+                    ::glClearColor(Command.R, Command.G, Command.B, Command.A);
+                    ::glClear(GL_COLOR_BUFFER_BIT);
+                } break;
+            }
+        });
         
         m_Context.swap_buffers();
     }
