@@ -8,10 +8,13 @@
  */
 
 // NOTE: system includes
+#include <algorithm>
 #include <array>
 #include <atomic>
 #include <chrono>
 #include <concepts>
+#include <condition_variable>
+#include <coroutine>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -21,12 +24,16 @@
 #include <mutex>
 #include <queue>
 #include <stacktrace>
+#include <stop_token>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <unordered_map>
 #include <utility>
 #include <variant>
 #include <vector>
+
+using namespace std::literals;
 
 #include "base/base.hpp"
 #if defined(LAMBDA_PLATFORM_WINDOWS)
@@ -43,6 +50,7 @@
 #include "util/util.hpp"
 #include "io/io.hpp"
 #include "os/os.hpp"
+#include "concurrency/concurrency.hpp"
 #include "render/render.hpp"
 #include "render/opengl/render_opengl.hpp"
 #include "runtime/runtime.hpp"
@@ -56,6 +64,7 @@
 #include "util/util.cpp"
 #include "io/io.cpp"
 #include "os/os.cpp"
+#include "concurrency/concurrency.cpp"
 #include "render/render.cpp"
 #include "render/opengl/render_opengl.cpp"
 #include "runtime/runtime.cpp"
