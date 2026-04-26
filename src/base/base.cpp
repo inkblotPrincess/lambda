@@ -75,7 +75,7 @@ namespace lambda
                 CurrentMaxLength < ThreadName.size() && 
                 !detail::MaxThreadNameLength.compare_exchange_weak(CurrentMaxLength, ThreadName.size()));
 
-            info("Thread '{}' registered", ThreadName);
+            info("Thread '{}' registered (id: {})", ThreadName, Id);
         }
         
         auto unregister_thread(std::thread::id ThreadId) -> void
@@ -91,7 +91,7 @@ namespace lambda
                 ThreadName = std::move(It->second);
                 detail::ThreadNames.erase(It);
             }
-            info("Thread '{}' unregistered", ThreadName);
+            detail::put_message(level::info, std::format("Thread '{}' unregistered (id: {})", ThreadName, ThreadId), ThreadName);
         }
 
         auto put_message(level Level, std::string_view Message)

@@ -37,7 +37,7 @@ namespace lambda::con
         m_Workers.reserve(WorkerCount);
         for (std::size_t I = 0u; I < WorkerCount; ++I)
         {
-            auto const Name = std::format("worker_{}", I);
+            auto const Name = std::format("tp_worker_{}", I);
             m_Workers.push_back({
                 Name, 
                 [this, Name](std::stop_token StopToken) 
@@ -80,7 +80,6 @@ namespace lambda::con
     auto thread_pool::worker(std::string WorkerName, std::stop_token StopToken) -> void
     {
         log::register_thread(WorkerName);
-        log::info("Starting worker thread: {}", std::this_thread::get_id());
         
         while (true)
         {
@@ -104,7 +103,7 @@ namespace lambda::con
                 m_PendingJobs.notify_all();
         }
 
-        log::info("Ending worker thread: {}", std::this_thread::get_id());
+        log::unregister_thread(std::this_thread::get_id());
     }
 
     awaitable_manager::awaitable_manager(thread_pool& Pool)
