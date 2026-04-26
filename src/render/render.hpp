@@ -45,7 +45,7 @@ namespace lambda::render
         requires std::invocable<func_type&, command_type, void const*>
         auto for_each(func_type&& Func) const -> void
         {
-            auto Offset = std::size_t{0};
+            auto Offset = 0zu;
             while (Offset < m_Buffer.size())
             {
                 auto const* Header = reinterpret_cast<header const*>(m_Buffer.data() + Offset);
@@ -99,11 +99,17 @@ namespace lambda::render
         vulkan,
     };
 
+    struct config
+    {
+        api Api;
+        std::size_t BufferSize;
+    };
+
     class renderer
     {
     public:
         renderer() = delete;
-        renderer(api Api, os::window& Window);
+        renderer(config const& Config, os::window& Window);
 
         ~renderer() = default;
 

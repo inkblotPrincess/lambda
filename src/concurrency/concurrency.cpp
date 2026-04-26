@@ -35,7 +35,7 @@ namespace lambda::con
         log::info("Starting thread pool with {} workers", WorkerCount);
 
         m_Workers.reserve(WorkerCount);
-        for (std::size_t I = 0u; I < WorkerCount; ++I)
+        for (std::size_t I = 0zu; I < WorkerCount; ++I)
         {
             auto const Name = std::format("tp_worker_{}", I);
             m_Workers.push_back({

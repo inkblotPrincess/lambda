@@ -73,7 +73,7 @@ namespace lambda::con
     struct awaitable_manager
     {
     public:
-        awaitable_manager(thread_pool& Pool);
+        explicit awaitable_manager(thread_pool& Pool);
 
         awaitable_manager(awaitable_manager const& Other) = delete;
         auto operator=(awaitable_manager const& Other) -> awaitable_manager& = delete;

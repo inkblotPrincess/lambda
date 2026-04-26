@@ -29,7 +29,7 @@ namespace lambda
                 .ThreadNamePadding = MaxThreadNameLength.load()
             };
 
-            auto const Lock = std::lock_guard{SinksMutex};
+            auto Lock = std::lock_guard{SinksMutex};
             for (auto& Sink : Sinks)
                 Sink->put(Payload);
         }
@@ -71,9 +71,7 @@ namespace lambda
             }
 
             auto CurrentMaxLength = detail::MaxThreadNameLength.load();
-            while (
-                CurrentMaxLength < ThreadName.size() && 
-                !detail::MaxThreadNameLength.compare_exchange_weak(CurrentMaxLength, ThreadName.size()));
+            while (CurrentMaxLength < ThreadName.size() &&  !detail::MaxThreadNameLength.compare_exchange_weak(CurrentMaxLength, ThreadName.size()));
 
             info("Thread '{}' registered (id: {})", ThreadName, Id);
         }
@@ -96,11 +94,11 @@ namespace lambda
 
         auto put_message(level Level, std::string_view Message)
         {
+            auto const Id = std::this_thread::get_id();
             auto ThreadName = std::string{"???"};
             {
                 auto Lock = std::lock_guard{detail::ThreadNamesMutex};
 
-                auto const Id = std::this_thread::get_id();
                 if (auto It = detail::ThreadNames.find(Id); It != detail::ThreadNames.end())
                     ThreadName = It->second;
             }

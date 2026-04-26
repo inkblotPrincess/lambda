@@ -72,12 +72,12 @@ namespace lambda::io
         auto Shared = std::array<std::shared_ptr<ostream>, sizeof...(Streams)>{std::shared_ptr<ostream>{std::move(Streams)}...};
         auto Result = std::array<std::unique_ptr<ostream>, sizeof...(Streams)>{};
         
-        for (std::size_t I = 0u; I < Shared.size(); ++I)
+        for (std::size_t I = 0zu; I < Shared.size(); ++I)
         {
             std::vector<std::weak_ptr<ostream>> SyncedStreams;
             SyncedStreams.reserve(Shared.size() - 1);
 
-            for (std::size_t J = 0u; J < Shared.size(); ++J)
+            for (std::size_t J = 0zu; J < Shared.size(); ++J)
             {
                 if (I != J)
                     SyncedStreams.emplace_back(Shared[J]);

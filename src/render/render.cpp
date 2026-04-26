@@ -17,9 +17,9 @@ namespace lambda::render
             {
                 using enum api;
                 
-                case directx: expect(false, "No backend support for DirectX"); 
+                case directx: expect(false, "No backend support for DirectX"); break;
                 case opengl:  return std::make_unique<opengl::opengl_backend>(Window);
-                case vulkan:  expect(false, "No backend support for Vulkan");
+                case vulkan:  expect(false, "No backend support for Vulkan"); break;
             }
             std::unreachable();
         }
@@ -56,10 +56,10 @@ namespace lambda::render
         m_Buffer.push(command_type::clear, clear_command{RGBA});
     }
 
-    renderer::renderer(api Api, os::window& Window)
+    renderer::renderer(config const& Config, os::window& Window)
         : m_Window{Window}
-        , m_Backend{detail::make_api(Api, m_Window)}
-        , m_Buffer{1024 * 1024}
+        , m_Backend{detail::make_api(Config.Api, m_Window)}
+        , m_Buffer{Config.BufferSize}
     {
 
     }

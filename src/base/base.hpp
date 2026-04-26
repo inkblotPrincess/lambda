@@ -15,6 +15,16 @@
     #error Unrecognised platform
 #endif
 
+#if defined(__clang__)
+    #define LAMBDA_COMPILER_CLANG 1
+#elif defined(_MSC_VER)
+    #define LAMBDA_COMPILER_MSVC 1
+#elif defined(__GNUC__)
+    #define LAMBDA_COMPILER_GCC 1
+#else
+    #error "Unsupported compiler"
+#endif
+
 #define LAMBDA_CONCAT_IMPL(A, B) A##B
 #define LAMBDA_CONCAT_VAR(A, B)  LAMBDA_CONCAT_IMPL(A, B)
 

@@ -34,7 +34,7 @@ namespace lambda::runtime
         log::register_thread("main");
 
         auto Window = os::window{{.Height = 720u, .Width = 1080u, .Title = "Lambda :3", .StartMode = os::window_mode::windowed}};
-        auto Renderer = render::renderer{render::api::opengl, Window};
+        auto Renderer = render::renderer{{.Api = render::api::opengl, .BufferSize = 1024 * 1024}, Window};
 
         auto Running = true;
         Window.set_event_handler([&Running](os::window_event const& Event) noexcept {

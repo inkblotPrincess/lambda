@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 #include <format>
 #include <functional>
 #include <memory>
@@ -36,15 +37,18 @@
 
 using namespace std::literals;
 
+// NOTE: platform includes
 #include "base/base.hpp"
 #if defined(LAMBDA_PLATFORM_WINDOWS)
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
     #include <GL/gl.h>
 
-    #pragma comment(lib, "gdi32")
-    #pragma comment(lib, "opengl32")
-    #pragma comment(lib, "user32")
+    #if defined(LAMBDA_COMPILER_MSVC)
+        #pragma comment(lib, "gdi32")
+        #pragma comment(lib, "opengl32")
+        #pragma comment(lib, "user32")
+    #endif
 #endif
 
 // NOTE: .hpp
@@ -78,30 +82,28 @@ using namespace std::literals;
 
 auto main(int argc, char* argv[]) -> int
 {
-    using namespace lambda;
-
     try
     {
-        auto Arguments = runtime::command_line_arguments{
+        auto Arguments = lambda::runtime::command_line_arguments{
             .Count     = static_cast<std::size_t>(argc + 1),
             .Arguments = argc > 1 ? argv + 1 : nullptr
         };
 
-        runtime::application_run(Arguments);
+        lambda::runtime::application_run(Arguments);
     }
-    catch (exception& Ex)
+    catch (lambda::exception& Ex)
     {
-        log::fatal("lambda::exception: {}", Ex.what());
+        lambda::log::fatal("lambda::exception: {}", Ex.what());
         return EXIT_FAILURE;
     }
     catch (std::exception& Ex)
     {
-        log::fatal("std::exception: {}", Ex.what());
+        lambda::log::fatal("std::exception: {}", Ex.what());
         return EXIT_FAILURE;
     }
     catch (...)
     {
-        log::fatal("Unrecognised exception");
+        lambda::log::fatal("Unrecognised exception");
         return EXIT_FAILURE;
     }
 

@@ -151,7 +151,7 @@ namespace lambda::render::opengl
         auto* Func = ::wglGetProcAddress(FunctionName);
         os::ensure_os(Func != nullptr, "Failed to load function");
 
-        return Func;
+        return reinterpret_cast<void*>(Func);
     }
 
     auto context::swap_buffers() -> void
