@@ -38,7 +38,7 @@
 using namespace std::literals;
 
 // NOTE: platform includes
-#include "base/base.hpp"
+#include "core/core_base.hpp"
 #if defined(LAMBDA_PLATFORM_WINDOWS)
     #define WIN32_LEAN_AND_MEAN
     #include <windows.h>
@@ -52,13 +52,16 @@ using namespace std::literals;
 #endif
 
 // NOTE: .hpp
-#include "util/util.hpp"
-#include "math/math.hpp"
-#include "io/io.hpp"
+#include "core/core_util.hpp"
+#include "core/core_math.hpp"
+#include "core/core_io.hpp"
+#include "core/core_concurrency.hpp"
+
 #include "os/os.hpp"
-#include "concurrency/concurrency.hpp"
+
 #include "render/render.hpp"
 #include "render/opengl/render_opengl.hpp"
+
 #include "runtime/runtime.hpp"
 
 #if defined(LAMBDA_PLATFORM_WINDOWS)
@@ -66,13 +69,15 @@ using namespace std::literals;
 #endif
 
 // NOTE: .cpp
-#include "base/base.cpp"
-#include "util/util.cpp"
-#include "io/io.cpp"
+#include "core/core_base.cpp"
+#include "core/core_io.cpp"
+#include "core/core_concurrency.cpp"
+
 #include "os/os.cpp"
-#include "concurrency/concurrency.cpp"
+
 #include "render/render.cpp"
 #include "render/opengl/render_opengl.cpp"
+
 #include "runtime/runtime.cpp"
 
 #if defined(LAMBDA_PLATFORM_WINDOWS)

@@ -21,7 +21,7 @@ namespace lambda::render::opengl
         #undef GL_DEFINE_VTABLE_FUNC
 
         template<class func_type>
-        requires util::function_type<func_type, void*, char const*>
+        requires std::invocable<func_type&, char const*> && std::same_as<std::invoke_result_t<func_type&, char const*>, void*>
         vtable(func_type&& LoaderFunc)
         {
             #define GL_LOAD_VTABLE_FUNC(Name, ...) Name = reinterpret_cast<Name##_type>(std::invoke(std::forward<func_type>(LoaderFunc), "gl"#Name));

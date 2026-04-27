@@ -14,11 +14,6 @@
 
 namespace lambda::util
 {
-    template<class func_type, class return_type, class... arg_types>
-    concept function_type = 
-            std::invocable<std::remove_cvref_t<func_type>, arg_types...> && 
-            std::convertible_to<std::invoke_result_t<std::remove_cvref_t<func_type>, arg_types...>, return_type>;
-
     template<class... handler_types>
     struct match : handler_types...
     {
@@ -40,13 +35,13 @@ namespace lambda::util
     {
     public:
         deferred_function() = delete;
-        explicit deferred_function(func_type&& Function) noexcept(std::is_nothrow_move_constructible_v<func_type>)
+        constexpr explicit deferred_function(func_type&& Function) noexcept(std::is_nothrow_move_constructible_v<func_type>)
             : m_Function{std::forward<func_type>(Function)}
         {
 
         }
 
-        ~deferred_function()
+        constexpr ~deferred_function()
         {
             std::invoke(m_Function);
         }
@@ -76,12 +71,12 @@ namespace lambda::util
 
         }
 
-        ~auto_release()
+        constexpr ~auto_release()
         {
             reset();
         }
 
-        constexpr auto_release(auto_release const& Other) = delete;
+        auto_release(auto_release const& Other) = delete;
         auto operator=(auto_release const& Other) -> auto_release& = delete;
 
         constexpr auto_release(auto_release&& Other) noexcept
