@@ -24,7 +24,7 @@ set cl_release=     cl /O2 /DBUILD_DEBUG=0 %cl_common%
 set cl_link=        /link /MANIFEST:EMBED /INCREMENTAL:NO /opt:ref /opt:icf
 set cl_out=         /out:
 
-set gcc_common=    -I..\src\ -std=c++2c -Wall -Wextra -Werror -pedantic -Wno-missing-field-initializers -Wno-cast-function-type
+set gcc_common=    -I..\src\ -std=c++23 -Wall -Wextra -Werror -pedantic -Wno-missing-field-initializers -Wno-cast-function-type
 set gcc_debug=     g++ -O0 -g -DBUILD_DEBUG=1 %gcc_common%
 set gcc_release=   g++ -O2 -DNDEBUG -DBUILD_DEBUG=0 %gcc_common%
 set gcc_link=      -lgdi32 -lopengl32 -luser32 -lstdc++exp
