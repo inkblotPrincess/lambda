@@ -31,4 +31,9 @@ namespace lambda::os
     {
         m_EventHandler = EventHandler;
     }
+
+    opengl_context::~opengl_context() = default;
+
+    opengl_context::opengl_context(opengl_context&& Other) noexcept = default;
+    auto opengl_context::operator=(opengl_context&& Other) noexcept -> opengl_context& = default;
 } // namespace lambda::os

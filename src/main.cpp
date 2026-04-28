@@ -81,7 +81,6 @@ using namespace std::literals;
 
 #if defined(LAMBDA_PLATFORM_WINDOWS)
     #include "os/win32/os_win32.cpp"
-    #include "render/opengl/render_opengl_win32.cpp"
 #endif
 
 auto main(int argc, char* argv[]) -> int

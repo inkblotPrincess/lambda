@@ -9,11 +9,6 @@
 
 namespace lambda::render::opengl
 {
-    context::~context() = default;
-
-    context::context(context&& Other) noexcept = default;
-    auto context::operator=(context&& Other) noexcept -> context& = default;
-
     opengl_backend::opengl_backend(os::window& Window)
         : m_Context{Window}
         , m_Gl{[this](char const* FunctionName) { return m_Context.load_function(FunctionName); }}

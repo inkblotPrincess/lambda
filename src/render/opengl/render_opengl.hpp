@@ -38,30 +38,6 @@ namespace lambda::render::opengl
         auto operator=(vtable&&) noexcept -> vtable& = delete;
     };
 
-    class context
-    {
-    public:
-        context() = delete;
-        context(os::window& Window);
-
-        ~context();
-
-        context(context const& Other) = delete;
-        auto operator=(context const& Other) -> context& = delete;
-
-        context(context&& Other) noexcept;
-        auto operator=(context&& Other) noexcept -> context&;
-
-        auto load_function(char const* FunctionName) -> void*;
-        auto swap_buffers() -> void;
-
-    private:
-        struct state;
-
-    private:
-        std::unique_ptr<context::state> m_State;
-    };
-
     class opengl_backend : public backend
     {
     public:
@@ -80,7 +56,7 @@ namespace lambda::render::opengl
         auto end_frame(command_buffer const& Commands) -> void override;
 
     private:
-        context m_Context;
+        os::opengl_context m_Context;
         vtable m_Gl;
         ::GLuint m_DummyVAO;
     };

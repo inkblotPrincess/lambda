@@ -65,4 +65,28 @@ namespace lambda::os
         std::function<bool(window_event const&)> m_EventHandler;
         window_mode m_Mode;
     };
+
+    class opengl_context
+    {
+    public:
+        opengl_context() = delete;
+        opengl_context(os::window& Window);
+
+        ~opengl_context();
+
+        opengl_context(opengl_context const& Other) = delete;
+        auto operator=(opengl_context const& Other) -> opengl_context& = delete;
+
+        opengl_context(opengl_context&& Other) noexcept;
+        auto operator=(opengl_context&& Other) noexcept -> opengl_context&;
+
+        auto load_function(char const* FunctionName) -> void*;
+        auto swap_buffers() -> void;
+
+    private:
+        struct state;
+
+    private:
+        std::unique_ptr<opengl_context::state> m_State;
+    };
 } // namespace lambda::os
