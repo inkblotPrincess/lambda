@@ -25,6 +25,7 @@
 #include <memory>
 #include <mutex>
 #include <queue>
+#include <span>
 #include <stacktrace>
 #include <stop_token>
 #include <string>
@@ -52,6 +53,7 @@ using namespace std::literals;
 #endif
 
 // NOTE: .hpp
+#include "core/core_memory.hpp"
 #include "core/core_math.hpp"
 #include "core/core_io.hpp"
 #include "core/core_concurrency.hpp"
@@ -68,6 +70,7 @@ using namespace std::literals;
 #endif
 
 // NOTE: .cpp
+#include "core/core_memory.cpp"
 #include "core/core_base.cpp"
 #include "core/core_io.cpp"
 #include "core/core_concurrency.cpp"
