@@ -18,7 +18,7 @@ namespace lambda::os
     }
 
     auto release_hwnd(::HWND& hwnd) noexcept -> void;
-    using hwnd_type = util::auto_release<::HWND, release_hwnd>;
+    using hwnd_type = auto_release<::HWND, release_hwnd>;
 
     struct window::state
     {

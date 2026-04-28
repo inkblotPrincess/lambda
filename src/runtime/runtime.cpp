@@ -38,7 +38,7 @@ namespace lambda::runtime
 
         auto Running = true;
         Window.set_event_handler([&Running](os::window_event const& Event) noexcept {
-            Event >> util::match {
+            Event >> match {
                 [&Running]([[maybe_unused]] os::window_quit_event const& QuitEvent) noexcept
                 {
                     Running = false;

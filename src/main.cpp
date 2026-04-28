@@ -52,7 +52,6 @@ using namespace std::literals;
 #endif
 
 // NOTE: .hpp
-#include "core/core_util.hpp"
 #include "core/core_math.hpp"
 #include "core/core_io.hpp"
 #include "core/core_concurrency.hpp"
