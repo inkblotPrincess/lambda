@@ -36,7 +36,7 @@ if not exist build mkdir build
 
 pushd build
 if "%runtime%"=="1"         set didbuild=1 && %compile% ..\src\main.cpp %compile_link% %out%lambda.exe || exit /b 1
-if "%runtime-tests%"=="1"   set didbuild=1 && %compile% /I..\vendor\googletest\include ..\src\test_main.cpp %compile_link% ..\vendor\googletest\lib\gtest.lib %out%lamdba_tests.exe || exit /b 1
+if "%runtime-tests%"=="1"   set didbuild=1 && %compile% /I..\vendor\googletest\include ..\src\test_main.cpp %compile_link% ..\vendor\googletest\lib\gtest.lib %out%lambda_tests.exe || exit /b 1
 popd
 
 if "%didbuild%"=="" (
