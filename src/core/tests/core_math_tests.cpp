@@ -7,7 +7,7 @@
  * means.
  */
 
-TEST(core_math, vec2_constructor)
+TEST(vec2, constructor)
 {
     using namespace lambda::math;
 
@@ -16,21 +16,21 @@ TEST(core_math, vec2_constructor)
     EXPECT_EQ(vec2i(7), vec2i(7, 7));
 }
 
-TEST(core_math, vec2_dot)
+TEST(vec2, dot)
 {
     using namespace lambda::math;
 
     EXPECT_EQ(vec2i::dot(vec2i(1, 2), vec2i(3, 4)), 11);
 }
 
-TEST(core_math, vec2_length)
+TEST(vec2, length)
 {
     using namespace lambda::math;
 
     EXPECT_FLOAT_EQ(vec2f(3.0f, 4.0f).length(), 5.0f);
 }
 
-TEST(core_math, vec2_arithmetic)
+TEST(vec2, arithmetic)
 {
     using namespace lambda::math;
 
@@ -50,7 +50,7 @@ TEST(core_math, vec2_arithmetic)
     EXPECT_EQ(-A, vec2i(-8, -12));
 }
 
-TEST(core_math, vec2_compound)
+TEST(vec2, compound)
 {
     using namespace lambda::math;
 
@@ -75,7 +75,7 @@ TEST(core_math, vec2_compound)
     EXPECT_EQ(V, vec2i(5, 6));
 }
 
-TEST(core_math, vec2_equality)
+TEST(vec2, equality)
 {
     using namespace lambda::math;
 
@@ -83,7 +83,7 @@ TEST(core_math, vec2_equality)
     EXPECT_NE(vec2i(1, 2), vec2i(2, 1));
 }
 
-TEST(core_math, vec3_constructor)
+TEST(vec3, constructor)
 {
     using namespace lambda::math;
 
@@ -94,28 +94,28 @@ TEST(core_math, vec3_constructor)
     EXPECT_EQ(vec3i(7), vec3i(7, 7, 7));
 }
 
-TEST(core_math, vec3_dot)
+TEST(vec3, dot)
 {
     using namespace lambda::math;
 
     EXPECT_EQ(vec3i::dot(vec3i(1, 2, 3), vec3i(4, 5, 6)), 32);
 }
 
-TEST(core_math, vec3_cross)
+TEST(vec2, cross)
 {
     using namespace lambda::math;
 
     EXPECT_EQ(vec3i::cross(vec3i(1, 0, 0), vec3i(0, 1, 0)), vec3i(0, 0, 1));
 }
 
-TEST(core_math, vec3_length)
+TEST(vec3, length)
 {
     using namespace lambda::math;
 
     EXPECT_FLOAT_EQ(vec3f(2.0f, 3.0f, 6.0f).length(), 7.0f);
 }
 
-TEST(core_math, vec3_swizzles)
+TEST(vec3, swizzles)
 {
     using namespace lambda::math;
 
@@ -125,7 +125,7 @@ TEST(core_math, vec3_swizzles)
     EXPECT_EQ(V.yz(), vec2i(2, 3));
 }
 
-TEST(core_math, vec3_arithmetic)
+TEST(vec3, arithmetic)
 {
     using namespace lambda::math;
 
@@ -145,7 +145,7 @@ TEST(core_math, vec3_arithmetic)
     EXPECT_EQ(-A, vec3i(-8, -12, -16));
 }
 
-TEST(core_math, vec3_equality)
+TEST(vec3, equality)
 {
     using namespace lambda::math;
 
@@ -153,7 +153,7 @@ TEST(core_math, vec3_equality)
     EXPECT_NE(vec3i(1, 2, 3), vec3i(3, 2, 1));
 }
 
-TEST(core_math, vec4_constructor)
+TEST(vec4, constructor)
 {
     using namespace lambda::math;
 
@@ -168,21 +168,21 @@ TEST(core_math, vec4_constructor)
     EXPECT_EQ(vec4i(7), vec4i(7, 7, 7, 7));
 }
 
-TEST(core_math, vec4_dot)
+TEST(vec4, dot)
 {
     using namespace lambda::math;
 
     EXPECT_EQ(vec4i::dot(vec4i(1, 2, 3, 4), vec4i(5, 6, 7, 8)), 70);
 }
 
-TEST(core_math, vec4_length)
+TEST(vec4, length)
 {
     using namespace lambda::math;
 
     EXPECT_FLOAT_EQ(vec4f(1.0f, 2.0f, 4.0f, 8.0f).length(), std::sqrt(85.0f));
 }
 
-TEST(core_math, vec4_swizzles)
+TEST(vec4, swizzles)
 {
     using namespace lambda::math;
 
@@ -196,7 +196,7 @@ TEST(core_math, vec4_swizzles)
     EXPECT_EQ(V.yzw(), vec3i(2, 3, 4));
 }
 
-TEST(core_math, vec4_arithmetic)
+TEST(vec4, arithmetic)
 {
     using namespace lambda::math;
 
@@ -216,7 +216,7 @@ TEST(core_math, vec4_arithmetic)
     EXPECT_EQ(-A, vec4i(-8, -12, -16, -20));
 }
 
-TEST(core_math, vec4_equality)
+TEST(vec4, equality)
 {
     using namespace lambda::math;
 
