@@ -60,7 +60,7 @@ TEST(arena, move_constructor)
     EXPECT_EQ(*Value, 42);
 }
 
-TEST(arema, move_assignment)
+TEST(arena, move_assignment)
 {
     using namespace lambda::memory;
 
@@ -187,7 +187,7 @@ TEST(arena, reset)
 TEST(arena, scope)
 {
     using namespace lambda::memory;
-    
+
     auto DestroyCount = 0zu;
     auto Arena = arena{1024zu};
 
