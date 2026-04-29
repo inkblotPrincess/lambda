@@ -18,7 +18,7 @@ namespace lambda::memory
 
             destructor_fn DestructorFn = nullptr;
             void* ObjectToDestroy = nullptr;
-            destructor_node* Next = nullptr;
+            destructor_node* Previous = nullptr;
         };
 
     public:
@@ -61,14 +61,25 @@ namespace lambda::memory
         requires std::is_trivially_destructible_v<alloc_type> && std::is_default_constructible_v<alloc_type>
         [[nodiscard]] auto allocate(std::size_t Count) noexcept(std::is_nothrow_default_constructible_v<alloc_type>) -> std::span<alloc_type>
         {
+            auto const UsedMark = m_Used;
+
             auto* const Memory = static_cast<alloc_type*>(allocate_bytes(Count * sizeof(alloc_type), alignof(alloc_type)));
             if (!Memory)
                 return {};
 
-            for (std::size_t I = 0zu; I < Count; ++I)
-                std::construct_at(Memory + I);
+            try
+            {
+                for (std::size_t I = 0zu; I < Count; ++I)
+                    std::construct_at(Memory + I);
 
-            return {Memory, Count};
+                return {Memory, Count};
+            }
+            catch(...)
+            {
+                // NOTE: have to unwind changes before re-throwing exception
+                m_Used = UsedMark;
+                throw;
+            }
         }
 
         template<class alloc_type, class... arg_types>
@@ -94,14 +105,14 @@ namespace lambda::memory
                 if (!Memory)
                     return nullptr;
 
-                Object = reinterpret_cast<alloc_type*>(Memory + OffsetToType);
-
                 auto* const Node = reinterpret_cast<destructor_node*>(Memory);
                 Node->DestructorFn    = [](void* Object) noexcept { std::destroy_at(static_cast<alloc_type*>(Object)); };
                 Node->ObjectToDestroy = Object;
-                Node->Next            = m_DestructorChainTail;
+                Node->Previous        = m_DestructorChainTail;
 
                 m_DestructorChainTail = Node;
+
+                Object = reinterpret_cast<alloc_type*>(Memory + OffsetToType);
             }
 
             try
@@ -112,9 +123,8 @@ namespace lambda::memory
             {
                 // NOTE: have to unwind changes before re-throwing exception
                 m_Used = UsedMark;
-
                 if constexpr (!std::is_trivially_destructible_v<alloc_type>)
-                    m_DestructorChainTail = m_DestructorChainTail->Next;
+                    m_DestructorChainTail = m_DestructorChainTail->Previous;
 
                 throw;
             }

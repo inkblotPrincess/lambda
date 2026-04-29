@@ -108,7 +108,7 @@ namespace lambda::memory
         while (m_DestructorChainTail != StoppingPoint)
         {
             auto* Current = m_DestructorChainTail;
-            m_DestructorChainTail = Current->Next;
+            m_DestructorChainTail = Current->Previous;
 
             Current->DestructorFn(Current->ObjectToDestroy);
         }
