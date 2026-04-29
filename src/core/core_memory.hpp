@@ -138,7 +138,7 @@ namespace lambda::memory
                 //       alloc_type throws on construction, the compiler still thinks we're trying to throw
                 //       from a noexcept function in cases where alloc_type is nothrow constructible and gives
                 //       a warning
-                if constexpr (!std::is_nothrow_default_constructible_v<alloc_type>)
+                if constexpr (!std::is_nothrow_constructible_v<alloc_type, arg_types...>)
                     throw;
             }
 
