@@ -23,7 +23,7 @@ namespace lambda::math
 
         [[nodiscard]] static constexpr auto dot(vec2 const& Lhs, vec2 const& Rhs) noexcept -> value_type 
         { 
-            (Lhs.X * Rhs.X) + (Lhs.Y * Rhs.Y); 
+            return (Lhs.X * Rhs.X) + (Lhs.Y * Rhs.Y); 
         }
 
         [[nodiscard]] auto length() noexcept -> value_type
@@ -80,7 +80,7 @@ namespace lambda::math
 
         [[nodiscard]] static constexpr auto cross(vec3 const& Lhs, vec3 const& Rhs) noexcept -> vec3
         {
-            return {
+            return vec3{
                 Lhs.Y * Rhs.Z - Lhs.Z * Rhs.Y,
                 Lhs.Z * Rhs.X - Lhs.X * Rhs.Z,
                 Lhs.X * Rhs.Y - Lhs.Y * Rhs.X
