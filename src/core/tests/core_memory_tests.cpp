@@ -7,13 +7,11 @@
  * means.
  */
 
-using namespace lambda::memory;
-
 namespace
 {
     struct non_trivial
     {
-        explicit non_trivial(int* Counter)
+        explicit non_trivial(std::size_t* Counter) noexcept
             : Counter{Counter}
         {
 
@@ -24,7 +22,7 @@ namespace
             ++(*Counter);
         }
 
-        int* Counter;
+        std::size_t* Counter;
     };
 
     struct throwing_constructor
@@ -36,229 +34,42 @@ namespace
     };
 }
 
-TEST(core_memory, arena_constructor)
+TEST(arena, constructor)
 {
-    auto Arena = arena{1024};
+    using namespace lambda::memory;
 
-    EXPECT_EQ(Arena.capacity(), 1024);
-    EXPECT_EQ(Arena.used(), 0);
-    EXPECT_EQ(Arena.remaining(), 1024);
+    auto const Arena = arena{1024zu};
+
+    EXPECT_EQ(Arena.capacity(), 1024zu);
+    EXPECT_EQ(Arena.remaining(), 1024zu);
+    EXPECT_EQ(Arena.used(), 0zu);
 }
 
-TEST(core_memory, arena_allocate_bytes)
+TEST(arena, move_constructor)
 {
-    auto Arena = arena{1024};
+    using namespace lambda::memory;
 
-    auto* Memory = Arena.allocate_bytes(64, alignof(std::max_align_t));
+    auto A = arena{1024zu};
 
-    ASSERT_NE(Memory, nullptr);
-    EXPECT_GE(Arena.used(), 64);
-    EXPECT_EQ(Arena.remaining(), Arena.capacity() - Arena.used());
-}
-
-TEST(core_memory, arena_allocate_bytes_zero_size)
-{
-    auto Arena = arena{1024};
-
-    auto* Memory = Arena.allocate_bytes(0, alignof(std::max_align_t));
-
-    EXPECT_EQ(Memory, nullptr);
-    EXPECT_EQ(Arena.used(), 0);
-}
-
-TEST(core_memory, arena_allocate_bytes_over_capacity)
-{
-    auto Arena = arena{64};
-
-    auto* Memory = Arena.allocate_bytes(128, alignof(std::max_align_t));
-
-    EXPECT_EQ(Memory, nullptr);
-    EXPECT_EQ(Arena.used(), 0);
-    EXPECT_EQ(Arena.remaining(), 64);
-}
-
-TEST(core_memory, arena_allocate_bytes_respects_alignment)
-{
-    auto Arena = arena{1024};
-    constexpr auto Alignment = 32zu;
-
-    auto* Memory = Arena.allocate_bytes(64, Alignment);
-
-    ASSERT_NE(Memory, nullptr);
-    EXPECT_EQ(reinterpret_cast<std::uintptr_t>(Memory) % Alignment, 0);
-}
-
-TEST(core_memory, arena_allocate_array)
-{
-    auto Arena = arena{1024};
-
-    auto Values = Arena.allocate<int>(4);
-
-    ASSERT_EQ(Values.size(), 4);
-    EXPECT_NE(Values.data(), nullptr);
-
-    EXPECT_EQ(Values[0], 0);
-    EXPECT_EQ(Values[1], 0);
-    EXPECT_EQ(Values[2], 0);
-    EXPECT_EQ(Values[3], 0);
-}
-
-TEST(core_memory, arena_allocate_array_zero_count)
-{
-    auto Arena = arena{1024};
-
-    auto Values = Arena.allocate<int>(0);
-
-    EXPECT_TRUE(Values.empty());
-    EXPECT_EQ(Values.data(), nullptr);
-    EXPECT_EQ(Arena.used(), 0);
-}
-
-TEST(core_memory, arena_allocate_array_over_capacity)
-{
-    auto Arena = arena{16};
-
-    auto Values = Arena.allocate<std::uint64_t>(8);
-
-    EXPECT_TRUE(Values.empty());
-    EXPECT_EQ(Values.data(), nullptr);
-    EXPECT_EQ(Arena.used(), 0);
-}
-
-TEST(core_memory, arena_emplace_trivial)
-{
-    auto Arena = arena{1024};
-
-    auto* Value = Arena.emplace<int>(42);
-
-    ASSERT_NE(Value, nullptr);
-    EXPECT_EQ(*Value, 42);
-}
-
-TEST(core_memory, arena_emplace_trivial_over_capacity)
-{
-    auto Arena = arena{1};
-
-    auto* Value = Arena.emplace<std::uint64_t>(123);
-
-    EXPECT_EQ(Value, nullptr);
-    EXPECT_EQ(Arena.used(), 0);
-}
-
-TEST(core_memory, arena_emplace_non_trivial)
-{
-    auto DestroyCount = 0;
-    {
-        auto Arena = arena{1024};
-
-        auto* Value = Arena.emplace<non_trivial>(&DestroyCount);
-
-        ASSERT_NE(Value, nullptr);
-        EXPECT_EQ(DestroyCount, 0);
-    }
-
-    EXPECT_EQ(DestroyCount, 1);
-}
-
-TEST(core_memory, arena_reset)
-{
-    auto DestroyCount = 0;
-    auto Arena = arena{1024};
-
-    ASSERT_NE(Arena.emplace<non_trivial>(&DestroyCount), nullptr);
-    ASSERT_NE(Arena.emplace<non_trivial>(&DestroyCount), nullptr);
-
-    EXPECT_EQ(DestroyCount, 0);
-
-    Arena.reset();
-
-    EXPECT_EQ(DestroyCount, 2);
-    EXPECT_EQ(Arena.used(), 0);
-    EXPECT_EQ(Arena.remaining(), Arena.capacity());
-
-    auto* B = Arena.emplace<int>(456);
-    ASSERT_NE(B, nullptr);
-
-    EXPECT_EQ(*B, 456);
-    EXPECT_EQ(Arena.remaining(), Arena.capacity() - Arena.used());
-}
-
-TEST(core_memory, arena_scope)
-{
-    auto Arena = arena{1024};
-
-    auto* A = Arena.emplace<int>(1);
-    ASSERT_NE(A, nullptr);
-
-    auto UsedBeforeScope = Arena.used();
-
-    {
-        auto Scope = arena::scope{Arena};
-
-        auto* B = Arena.emplace<int>(2);
-        ASSERT_NE(B, nullptr);
-        EXPECT_GT(Arena.used(), UsedBeforeScope);
-    }
-
-    EXPECT_EQ(Arena.used(), UsedBeforeScope);
-}
-
-TEST(core_memory, arena_nested_scopes)
-{
-    auto DestroyCount = 0;
-    auto Arena = arena{1024};
-
-    {
-        auto Outer = arena::scope{Arena};
-
-        ASSERT_NE(Arena.emplace<non_trivial>(&DestroyCount), nullptr);
-
-        {
-            auto Inner = arena::scope{Arena};
-
-            ASSERT_NE(Arena.emplace<non_trivial>(&DestroyCount), nullptr);
-            ASSERT_NE(Arena.emplace<non_trivial>(&DestroyCount), nullptr);
-        }
-
-        EXPECT_EQ(DestroyCount, 2);
-    }
-
-    EXPECT_EQ(DestroyCount, 3);
-    EXPECT_EQ(Arena.used(), 0);
-}
-
-TEST(core_memory, arena_emplace_throw)
-{
-    auto Arena = arena{1024};
-
-    auto UsedBefore = Arena.used();
-
-    EXPECT_THROW({[[maybe_unused]] auto Result = Arena.emplace<throwing_constructor>(); }, int);
-
-    EXPECT_EQ(Arena.used(), UsedBefore);
-}
-
-TEST(core_memory, arena_move_constructor)
-{
-    auto A = arena{1024};
-
-    auto* Value = A.emplace<int>(42);
+    auto* const Value = A.emplace<int>(42);
     ASSERT_NE(Value, nullptr);
 
-    auto B = arena{std::move(A)};
+    auto const B = arena{std::move(A)};
 
     EXPECT_EQ(B.capacity(), 1024);
     EXPECT_EQ(*Value, 42);
 }
 
-TEST(core_memory, arena_move_assignment)
+TEST(arema, move_assignment)
 {
-    auto DestroyCount = 0;
+    using namespace lambda::memory;
 
-    auto A = arena{1024};
+    auto DestroyCount = 0zu;
+
+    auto A = arena{1024zu};
     ASSERT_NE(A.emplace<non_trivial>(&DestroyCount), nullptr);
 
-    auto B = arena{1024};
+    auto B = arena{1024zu};
     ASSERT_NE(B.emplace<non_trivial>(&DestroyCount), nullptr);
 
     B = std::move(A);
@@ -268,4 +79,129 @@ TEST(core_memory, arena_move_assignment)
     B.reset();
 
     EXPECT_EQ(DestroyCount, 2);
+}
+
+TEST(arena, allocate_bytes)
+{
+    using namespace lambda::memory;
+
+    auto Arena = arena{1024zu};
+
+    auto* const Memory = Arena.allocate_bytes(64zu, alignof(std::max_align_t));
+    EXPECT_NE(Memory, nullptr);
+    EXPECT_EQ(reinterpret_cast<std::uintptr_t>(Memory) % alignof(std::max_align_t), 0);
+    
+    EXPECT_GE(Arena.used(), 64zu);
+    EXPECT_EQ(Arena.remaining(), Arena.capacity() - Arena.used());
+
+    auto const OldUsed = Arena.used();
+    auto const OldRemaining = Arena.remaining();
+
+    auto* const ZeroMemory = Arena.allocate_bytes(0zu, alignof(std::max_align_t));
+    EXPECT_EQ(ZeroMemory, nullptr);
+
+    EXPECT_EQ(OldUsed, Arena.used());
+    EXPECT_EQ(OldRemaining, Arena.remaining());
+
+    auto* const FatMemory = Arena.allocate_bytes(2048zu, alignof(std::max_align_t));
+    EXPECT_EQ(FatMemory, nullptr);
+
+    EXPECT_EQ(OldUsed, Arena.used());
+    EXPECT_EQ(OldRemaining, Arena.remaining());
+}
+
+TEST(arena, allocate)
+{
+    using namespace lambda::memory;
+
+    auto Arena = arena{1024zu};
+
+    auto const EmptyValues = Arena.allocate<int>(0zu);
+    
+    EXPECT_TRUE(EmptyValues.empty());
+    EXPECT_EQ(EmptyValues.data(), nullptr);
+    EXPECT_EQ(Arena.used(), 0zu);
+
+    auto const Values = Arena.allocate<int>(4);
+
+    EXPECT_NE(Values.data(), nullptr);
+    
+    ASSERT_EQ(Values.size(), 4zu);
+    EXPECT_EQ(Values[0], 0zu);
+    EXPECT_EQ(Values[1], 0zu);
+    EXPECT_EQ(Values[2], 0zu);
+    EXPECT_EQ(Values[3], 0zu);
+
+    auto const OldUsed = Arena.used();
+    auto const OldRemaining = Arena.remaining();
+
+    auto const FatValues = Arena.allocate<std::uint64_t>(1000u);
+
+    EXPECT_TRUE(FatValues.empty());
+    EXPECT_EQ(FatValues.data(), nullptr);
+
+    EXPECT_EQ(OldUsed, Arena.used());
+    EXPECT_EQ(OldRemaining, Arena.remaining());
+}
+
+TEST(arena, emplace)
+{
+    using namespace lambda::memory;
+
+    auto SmallArena = arena{1zu};
+    auto* const FatValue = SmallArena.emplace<std::uint64_t>(100u);
+
+    EXPECT_EQ(FatValue, nullptr);
+    EXPECT_EQ(SmallArena.used(), 0zu);
+
+    auto Arena = arena{1024zu};
+    auto* const Value = Arena.emplace<int>(42);
+
+    ASSERT_NE(Value, nullptr);
+    EXPECT_EQ(*Value, 42);
+
+    auto const OldUsed = Arena.used();
+    EXPECT_THROW({[[maybe_unused]] auto Result = Arena.emplace<throwing_constructor>(); }, int);
+    EXPECT_EQ(OldUsed, Arena.used());
+}
+
+TEST(arena, reset)
+{
+    using namespace lambda::memory;
+
+    auto DestroyCount = 0zu;
+    auto Arena = arena{1024zu};
+
+    ASSERT_NE(Arena.emplace<non_trivial>(&DestroyCount), nullptr);
+    ASSERT_NE(Arena.emplace<non_trivial>(&DestroyCount), nullptr);
+
+    EXPECT_EQ(DestroyCount, 0zu);
+
+    Arena.reset();
+
+    EXPECT_EQ(DestroyCount, 2zu);
+    EXPECT_EQ(Arena.used(), 0zu);
+    EXPECT_EQ(Arena.remaining(), Arena.capacity());
+}
+
+TEST(arena, scope)
+{
+    using namespace lambda::memory;
+    
+    auto DestroyCount = 0zu;
+    auto Arena = arena{1024zu};
+
+    {
+        auto Outer = arena::scope{Arena};
+        ASSERT_NE(Arena.emplace<non_trivial>(&DestroyCount), nullptr);
+        {
+            auto Inner = arena::scope{Arena};
+            ASSERT_NE(Arena.emplace<non_trivial>(&DestroyCount), nullptr);
+            ASSERT_NE(Arena.emplace<non_trivial>(&DestroyCount), nullptr);
+        }
+        EXPECT_EQ(DestroyCount, 2zu);
+    }
+
+    EXPECT_EQ(DestroyCount, 3zu);
+    EXPECT_EQ(Arena.used(), 0zu);
 }
