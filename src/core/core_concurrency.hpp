@@ -70,10 +70,12 @@ namespace lambda::con
         std::vector<thread> m_Workers;
     };
 
-    struct awaitable_manager
+    struct task;
+
+    class awaitable_manager
     {
     public:
-        explicit awaitable_manager(thread_pool& Pool);
+        explicit awaitable_manager(thread_pool& Pool, memory::arena& CoroutineArena);
 
         awaitable_manager(awaitable_manager const& Other) = delete;
         auto operator=(awaitable_manager const& Other) -> awaitable_manager& = delete;
@@ -109,7 +111,6 @@ namespace lambda::con
                 auto await_suspend(std::coroutine_handle<> Handle) -> void
                 {
                     auto Lock = std::scoped_lock{Self.m_Mutex};
-
                     Self.m_TimerQueue.push(timer_awaitable{
                         .TimePoint = std::chrono::steady_clock::now() + WaitTime,
                         .Handle = Handle,
@@ -126,14 +127,20 @@ namespace lambda::con
         auto pump() -> void;
 
     private:
+        // NOTE: allows task to directly access the arena for `operator new()`. alternative was exposing the arena
+        //       directly which is unnecessary amounts of exposure. (since every coroutine would also have access)
+        //       access to the awaitable_manager and thus the arena.) doing it this way minimises the risk of doing
+        //       something stupid, since the coroutine arena should only be used by the task type anyway.
+        friend struct task;
+
         struct timer_awaitable
         {
             std::chrono::steady_clock::time_point TimePoint;
             std::coroutine_handle<> Handle;
 
-            friend auto operator>(timer_awaitable const& LHS, timer_awaitable const& RHS) noexcept -> bool
+            friend auto operator>(timer_awaitable const& Lhs, timer_awaitable const& Rhs) noexcept -> bool
             {
-                return LHS.TimePoint > RHS.TimePoint;
+                return Lhs.TimePoint > Rhs.TimePoint;
             }
         };
 
@@ -141,6 +148,7 @@ namespace lambda::con
 
     private:
         thread_pool& m_Pool;
+        memory::arena& m_CoroutineArena;
 
         std::mutex m_Mutex;
         std::queue<std::coroutine_handle<>> m_NextTickQueue;
@@ -154,6 +162,19 @@ namespace lambda::con
     {
         struct promise_type
         {
+            static auto operator new(std::size_t Size, awaitable_manager& Awaitable, auto&...) -> void*
+            {
+                if (auto* Memory = Awaitable.m_CoroutineArena.allocate_bytes(Size, alignof(promise_type)); Memory != nullptr)
+                    return Memory;
+
+                throw std::bad_alloc{};
+            }
+
+            static auto operator delete([[maybe_unused]] void* Memory, [[maybe_unused]] std::size_t Size) noexcept -> void
+            {
+                // arena does not perform individual frees so this is a no-op
+            }
+
             auto initial_suspend() -> std::suspend_never { return {}; }
             auto final_suspend() noexcept -> std::suspend_never { return {}; }
             auto return_void() -> void {}

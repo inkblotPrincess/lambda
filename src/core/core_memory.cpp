@@ -9,6 +9,10 @@
 
 namespace lambda::memory
 {
+    constexpr auto kb_to_b(std::size_t Kilobytes) noexcept -> std::size_t { return Kilobytes * 1024zu; }
+    constexpr auto mb_to_b(std::size_t Megabytes) noexcept -> std::size_t { return Megabytes * 1024zu * 1024zu; }
+    constexpr auto gb_to_b(std::size_t Gigabytes) noexcept -> std::size_t { return Gigabytes * 1024zu * 1024zu * 1024zu; }
+
     arena::scope::scope(arena& Arena) noexcept
         : m_Arena{Arena}
         , m_UsedMark{Arena.m_Used}

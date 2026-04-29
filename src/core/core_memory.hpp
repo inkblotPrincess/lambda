@@ -9,6 +9,10 @@
 
 namespace lambda::memory
 {
+    constexpr auto kb_to_b(std::size_t Kilobytes) noexcept -> std::size_t;
+    constexpr auto mb_to_b(std::size_t Megabytes) noexcept -> std::size_t;
+    constexpr auto gb_to_b(std::size_t Gigabytes) noexcept -> std::size_t;
+
     class arena
     {
     private:

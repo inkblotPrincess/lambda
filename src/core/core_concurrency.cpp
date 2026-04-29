@@ -106,8 +106,9 @@ namespace lambda::con
         log::unregister_thread(std::this_thread::get_id());
     }
 
-    awaitable_manager::awaitable_manager(thread_pool& Pool)
+    awaitable_manager::awaitable_manager(thread_pool& Pool, memory::arena& CoroutineArena)
         : m_Pool{Pool}
+        , m_CoroutineArena{CoroutineArena}
         , m_Mutex{}
         , m_NextTickQueue{}
         , m_TimerQueue{}
@@ -119,8 +120,11 @@ namespace lambda::con
 
     auto awaitable_manager::pump() -> void
     {
+        // TODO: make this vector backed by frame arena
         auto Ready = std::vector<std::coroutine_handle<>>{};
+
         {
+            // next-frame coroutines
             auto Lock = std::scoped_lock{m_Mutex};
             while (!m_NextTickQueue.empty())
             {
@@ -128,6 +132,7 @@ namespace lambda::con
                 m_NextTickQueue.pop();
             }
 
+            // timer-based coroutines
             auto const Now = std::chrono::steady_clock::now();
             while (!m_TimerQueue.empty() && m_TimerQueue.top().TimePoint <= Now)
             {

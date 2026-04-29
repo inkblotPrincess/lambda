@@ -50,14 +50,19 @@ namespace lambda::runtime
             return Running;
         });
 
+        auto PersistentArena = memory::arena{memory::mb_to_b(1zu)};
+        auto FrameArena = memory::arena{memory::mb_to_b(1zu)};
+
         auto ThreadPool = con::thread_pool{};
-        auto AwaitableManager = con::awaitable_manager{ThreadPool};
+        auto AwaitableManager = con::awaitable_manager{ThreadPool, PersistentArena};
 
         auto RGB = math::vec3f{0.0f};
         detail::change_clear_colour(AwaitableManager, RGB);
 
         while (Running)
         {
+            FrameArena.reset();
+            
             Window.process_events();
             if (!Running)
                 break;
