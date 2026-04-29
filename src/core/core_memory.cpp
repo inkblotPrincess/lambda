@@ -9,7 +9,7 @@
 
 namespace lambda::memory
 {
-    arena::scope::scope(arena& Arena)
+    arena::scope::scope(arena& Arena) noexcept
         : m_Arena{Arena}
         , m_UsedMark{Arena.m_Used}
         , m_DestructorChainMark{Arena.m_DestructorChainTail}
@@ -23,7 +23,7 @@ namespace lambda::memory
         m_Arena.m_Used = m_UsedMark;
     }
 
-    arena::arena(std::size_t Capacity)
+    arena::arena(std::size_t Capacity) noexcept
         : m_Buffer{std::make_unique<std::byte[]>(Capacity)}
         , m_Capacity{Capacity}
         , m_Used{0zu}
@@ -69,6 +69,9 @@ namespace lambda::memory
     {
         expect(Alignment > 0, "expected non-zero alignment");
         expect((Alignment & (Alignment - 1)) == 0, "expected power of two alignment");
+
+        if (Size == 0)
+            return nullptr;
 
         auto Base    = reinterpret_cast<std::uintptr_t>(m_Buffer.get());
         auto Aligned = (Base + m_Used + (Alignment - 1)) & ~(Alignment - 1);

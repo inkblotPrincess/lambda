@@ -26,7 +26,7 @@ namespace lambda::memory
         {
         public:
             scope() = delete;
-            explicit scope(arena& Arena);
+            explicit scope(arena& Arena) noexcept;
 
             ~scope();
 
@@ -47,7 +47,7 @@ namespace lambda::memory
 
     public:
         arena() = delete;
-        explicit arena(std::size_t Capacity);
+        explicit arena(std::size_t Capacity) noexcept;
 
         ~arena();
 
@@ -78,7 +78,14 @@ namespace lambda::memory
             {
                 // NOTE: have to unwind changes before re-throwing exception
                 m_Used = UsedMark;
-                throw;
+
+                // NOTE: we have to put this extra if-constexpr here in order to satisfy constraints related
+                //       to noexcept; even though this line can only ever theoretically throw in cases where
+                //       alloc_type throws on construction, the compiler still thinks we're trying to throw
+                //       from a noexcept function in cases where alloc_type is nothrow constructible and gives
+                //       a warning
+                if constexpr (!std::is_nothrow_default_constructible_v<alloc_type>)
+                    throw;
             }
         }
 
@@ -105,14 +112,14 @@ namespace lambda::memory
                 if (!Memory)
                     return nullptr;
 
+                Object = reinterpret_cast<alloc_type*>(Memory + OffsetToType);
+
                 auto* const Node = reinterpret_cast<destructor_node*>(Memory);
                 Node->DestructorFn    = [](void* Object) noexcept { std::destroy_at(static_cast<alloc_type*>(Object)); };
                 Node->ObjectToDestroy = Object;
                 Node->Previous        = m_DestructorChainTail;
 
                 m_DestructorChainTail = Node;
-
-                Object = reinterpret_cast<alloc_type*>(Memory + OffsetToType);
             }
 
             try
@@ -126,7 +133,13 @@ namespace lambda::memory
                 if constexpr (!std::is_trivially_destructible_v<alloc_type>)
                     m_DestructorChainTail = m_DestructorChainTail->Previous;
 
-                throw;
+                // NOTE: we have to put this extra if-constexpr here in order to satisfy constraints related
+                //       to noexcept; even though this line can only ever theoretically throw in cases where
+                //       alloc_type throws on construction, the compiler still thinks we're trying to throw
+                //       from a noexcept function in cases where alloc_type is nothrow constructible and gives
+                //       a warning
+                if constexpr (!std::is_nothrow_default_constructible_v<alloc_type>)
+                    throw;
             }
 
             std::unreachable();
