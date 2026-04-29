@@ -54,6 +54,7 @@ using namespace std::literals;
 #include <gtest/gtest.h>
 
 // NOTE: tests
+#include "core/tests/core_memory_tests.cpp"
 #include "core/tests/core_math_tests.cpp"
 
 auto main(int argc, char** argv) -> int
