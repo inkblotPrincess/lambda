@@ -1,6 +1,7 @@
 {
-    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
-    "cmake.useCMakePresets": "always",
-    "cmake.configureOnEdit": false
+    "clangd.arguments": [
+        "--compile-commands-dir=build-mingw-gcc-trunk",
+        "--background-index",
+        "--clang-tidy"
+    ]
 }

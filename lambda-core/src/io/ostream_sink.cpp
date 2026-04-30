@@ -9,6 +9,8 @@
 
 #include <core/io/ostream_sink.hpp>
 
+#include <core/base/formatter.hpp>
+
 #include <chrono>
 #include <format>
 
@@ -27,10 +29,10 @@ namespace lambda::io
         if (Payload.Level < m_MinLevel || Payload.Level > m_MaxLevel)
             return;
 
-        auto const Now = std::chrono::floor<std::chrono::seconds>(Payload.Time);
-        auto const Out = std::format(
+        auto const Time = std::chrono::floor<std::chrono::seconds>(Payload.Time);
+        auto const Out  = std::format(
             "[{:%Y-%m-%d %H:%M:%S}] {:<{}} {:<7} >> {}\n", 
-            Now, Payload.ThreadName, Payload.ThreadNamePadding, to_string(Payload.Level), Payload.Message
+            Time, Payload.ThreadName, Payload.ThreadNamePadding, Payload.Level, Payload.Message
         );
 
         m_Stream->write(Out);

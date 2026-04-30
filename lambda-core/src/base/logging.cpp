@@ -44,7 +44,7 @@ namespace lambda::log
     } // namespace detail
 
     // c++26: replace with enum to string
-    auto to_string(level Level) noexcept -> std::string_view
+    auto to_string(level Level) noexcept -> std::string
     {
         switch (Level)
         {
