@@ -10,8 +10,8 @@ The build system for this uses a Docker file that you can access via Make.
 # Configure the project
 > make config
 
-# Build the runtime
-> make build
+# Build and run the runtime
+> make run
 
 # Build and run the unit tests
 > make tests
