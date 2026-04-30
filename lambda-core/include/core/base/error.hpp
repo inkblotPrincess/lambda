@@ -22,14 +22,14 @@ namespace lambda
     {
     public:
         template<class... arg_types>
-        exception(std::format_string<arg_types...> Format, arg_types&&... Arguments)
+        constexpr exception(std::format_string<arg_types...> Format, arg_types&&... Arguments)
             : runtime_error{std::format(Format, std::forward<arg_types>(Arguments)...)}
             , m_What{std::format("{}\n --> {}", std::runtime_error::what(), std::stacktrace::current(1))}
         {
 
         }
 
-        auto what() const noexcept -> char const* override
+        constexpr auto what() const noexcept -> char const* override
         {
             return m_What.c_str();
         }
@@ -41,14 +41,14 @@ namespace lambda
     class system_exception : public exception
     {
     public:
-        system_exception(std::error_code ErrorCode, std::string_view Message)
+        constexpr system_exception(std::error_code ErrorCode, std::string_view Message)
             : exception{"System error ({}): {}", ErrorCode.message(), Message}
             , m_ErrorCode{ErrorCode}
         {
 
         }
 
-        [[nodiscard]] auto error_code() const noexcept -> std::error_code
+        [[nodiscard]] constexpr auto error_code() const noexcept -> std::error_code
         {
             return m_ErrorCode;
         }
@@ -58,7 +58,7 @@ namespace lambda
     };
 
     template<class... arg_types>
-    auto expect(bool Predicate, std::format_string<arg_types...> Format, arg_types&&... Arguments) -> void
+    constexpr auto expect(bool Predicate, std::format_string<arg_types...> Format, arg_types&&... Arguments) -> void
     {
         if (!Predicate)
         {
