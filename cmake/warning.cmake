@@ -1,5 +1,3 @@
-option(ENABLE_WARNINGS_AS_ERRORS "Treat C++ warnings as compiler error" OFF)
-
 function(enable_warnings target_name)
     if(NOT TARGET ${target_name})
         message(FATAL_ERROR "'${target_name}' is not a valid target")

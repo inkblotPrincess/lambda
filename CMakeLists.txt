@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 4.2)
 project(lambda LANGUAGES CXX)
 
+option(ENABLE_WARNINGS_AS_ERRORS "Treat C++ warnings as compiler error" ON)
+
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
