@@ -1,0 +1,31 @@
+/**
+ * This is free and unencumbered software released into the public domain.
+ * 
+ * Anyone is free to copy, modify, publish, use, compile, sell, or
+ * distribute this software, either in source code form or as a compiled
+ * binary, for any purpose, commercial or non-commercial, and by any
+ * means.
+ */
+
+#include <core/os/window.hpp>
+
+namespace lambda::os
+{
+    auto window::process_events() noexcept -> void
+    {
+        update_event_queue();
+        if (!m_EventHandler)
+            return;
+
+        for (auto Event = poll_event(); Event.has_value(); Event = poll_event())
+        {
+            if (!std::invoke(m_EventHandler, *Event))
+                break;
+        }
+    }
+
+    auto window::set_event_handler(std::function<bool(window_event const&)> EventHandler) noexcept -> void
+    {
+        m_EventHandler = EventHandler;
+    }
+} // namespace lambda::os

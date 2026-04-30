@@ -1,0 +1,7 @@
+add_subdirectory(base)
+add_subdirectory(concurrency)
+add_subdirectory(internal)
+add_subdirectory(io)
+add_subdirectory(memory)
+add_subdirectory(os)
+add_subdirectory(renderer)
