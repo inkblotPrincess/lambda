@@ -11,31 +11,32 @@
 
 #include <core/base/error.hpp>
 #include <core/base/logging.hpp>
+#include <core/utility/command_line.hpp>
+
+#include <vector>
 
 auto main(int argc, char* argv[]) -> int
 {
+    using namespace lambda;
+
     try
     {
-        auto Arguments = lambda::runtime::command_line_arguments{
-            .Count     = static_cast<std::size_t>(argc + 1),
-            .Arguments = argc > 1 ? argv + 1 : nullptr
-        };
-
-        lambda::runtime::application_run(Arguments);
+        auto Options = utility::parse_options<runtime::application_options>(std::vector<std::string_view>{argv + 1, argv + argc});
+        runtime::application_run(Options);
     }
-    catch (lambda::exception& Ex)
+    catch (exception& Ex)
     {
-        lambda::log::fatal("lambda::exception: {}", Ex.what());
+        log::fatal("lambda::exception: {}", Ex.what());
         return EXIT_FAILURE;
     }
     catch (std::exception& Ex)
     {
-        lambda::log::fatal("std::exception: {}", Ex.what());
+        log::fatal("std::exception: {}", Ex.what());
         return EXIT_FAILURE;
     }
     catch (...)
     {
-        lambda::log::fatal("Unrecognised exception");
+        log::fatal("Unrecognised exception");
         return EXIT_FAILURE;
     }
 

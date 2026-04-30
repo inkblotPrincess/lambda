@@ -48,14 +48,14 @@ namespace lambda::runtime
         }
     } // namespace detail
 
-    auto application_run([[maybe_unused]] command_line_arguments const& Arguments) -> void
+    auto application_run(application_options const& Options) -> void
     {
         auto SyncedStreams = io::synchronise(io::std_out(), io::std_err());
         log::add_sink(std::make_unique<io::ostream_sink>(std::move(SyncedStreams[0]), log::level::debug, log::level::info));
         log::add_sink(std::make_unique<io::ostream_sink>(std::move(SyncedStreams[1]), log::level::warn, log::level::fatal));
         log::register_thread("main");
 
-        auto Window = os::window{{.Height = 720u, .Width = 1080u, .Title = "Lambda :3", .StartMode = os::window_mode::windowed}};
+        auto Window = os::window{{.Height = 720u, .Width = 1080u, .Title = Options.WindowTitle, .StartMode = os::window_mode::windowed}};
         auto Renderer = render::renderer{{.Api = render::api::opengl, .BufferSize = 1024 * 1024}, Window};
 
         auto Running = true;

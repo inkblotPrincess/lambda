@@ -10,14 +10,14 @@
 #pragma once
 
 #include <cstddef>
+#include <string>
 
 namespace lambda::runtime
 {
-    struct command_line_arguments
+    struct application_options
     {
-        std::size_t Count;
-        char** Arguments;
+        std::string WindowTitle = "Lambda :3";
     };
 
-    auto application_run(command_line_arguments const& Arguments) -> void;
+    auto application_run(application_options const& Options) -> void;
 } // namespace lambda::runtime
