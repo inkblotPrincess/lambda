@@ -15,9 +15,6 @@
 #include <mutex>
 #include <queue>
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
 namespace lambda::os
 {
     auto release_hwnd(::HWND& hwnd) noexcept -> void;

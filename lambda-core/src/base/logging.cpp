@@ -12,6 +12,7 @@
 #include <atomic>
 #include <mutex>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace lambda::log

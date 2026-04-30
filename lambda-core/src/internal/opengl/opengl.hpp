@@ -15,9 +15,9 @@
 
 #if defined(LAMBDA_PLATFORM_WINDOWS)
     #define WIN32_LEAN_AND_MEAN
-    #include <Windows.h>
+    #include <windows.h>
 
-    #include <gl/GL.h>
+    #include <GL/gl.h>
 #endif
 
 #define GL_X_MACRO(GL_MACRO) \

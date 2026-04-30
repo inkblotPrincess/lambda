@@ -14,6 +14,7 @@
 #include <memory>
 #include <span>
 #include <type_traits>
+#include <utility>
 
 namespace lambda::memory
 {

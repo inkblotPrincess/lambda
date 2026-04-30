@@ -9,6 +9,8 @@
 
 #include <core/io/file_ostream.hpp>
 
+#include <utility>
+
 namespace lambda::io
 {
     file_ostream::file_ostream(FILE* File) noexcept

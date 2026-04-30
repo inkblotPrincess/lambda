@@ -16,6 +16,9 @@ function(enable_warnings target_name)
         $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wpedantic>
         $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wconversion>
         $<$<AND:$<BOOL:${ENABLE_WARNINGS_AS_ERRORS}>,$<CXX_COMPILER_ID:GNU,Clang,AppleClang>>:-Werror>
+
+        $<$<CXX_COMPILER_ID:GNU>:-Wno-missing-field-initializers> 
+        $<$<CXX_COMPILER_ID:GNU>:-Wno-cast-function-type>
     )
 
     message(STATUS "Warnings enabled for '${target_name}'")

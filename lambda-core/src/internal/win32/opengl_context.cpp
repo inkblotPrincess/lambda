@@ -13,7 +13,9 @@
 
 #include "win32.hpp"
 
-#include <gl/GL.h>
+#include <GL/gl.h>
+
+#include <mutex>
 
 #define WGL_CONTEXT_MAJOR_VERSION_ARB               0x2091
 #define WGL_CONTEXT_MINOR_VERSION_ARB               0x2092

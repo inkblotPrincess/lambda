@@ -14,6 +14,7 @@
 #include <core/os/window.hpp>
 
 #include <cstddef>
+#include <cstring>
 #include <memory>
 
 namespace lambda::render

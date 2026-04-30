@@ -10,6 +10,8 @@
 #include <core/renderer/renderer.hpp>
 #include <internal/opengl/opengl_backend.hpp>
 
+#include <utility>
+
 namespace lambda::render
 {
     namespace detail
