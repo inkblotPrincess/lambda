@@ -9,7 +9,7 @@
 
 #include <core/io/ostream_sink.hpp>
 
-#include <core/base/formatter.hpp>
+#include <core/utility/formatter.hpp>
 
 #include <chrono>
 #include <format>

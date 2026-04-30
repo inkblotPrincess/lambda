@@ -9,15 +9,15 @@
 
 #pragma once
 
-#include <core/base/macro_utils.hpp>
+#include <core/utility/macro_utils.hpp>
 
 #include <concepts>
 #include <type_traits>
 
 #define LAMBDA_DEFER(...) \
-    auto LAMBDA_CONCAT_VAR(Defer, __COUNTER__) = ::lambda::deferred_function{__VA_ARGS__}
+    auto LAMBDA_CONCAT_VAR(Defer, __COUNTER__) = ::lambda::utility::deferred_function{__VA_ARGS__}
 
-namespace lambda
+namespace lambda::utility
 {
     template<class func_type>
     requires std::invocable<func_type&> && std::same_as<std::invoke_result_t<func_type&>, void>

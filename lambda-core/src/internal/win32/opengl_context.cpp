@@ -9,9 +9,8 @@
 
 #include <core/os/opengl_context.hpp>
 
-#include <core/base/defer.hpp>
-
-#include "win32.hpp"
+#include <core/utility/defer.hpp>
+#include <internal/win32/win32.hpp>
 
 #include <GL/gl.h>
 
