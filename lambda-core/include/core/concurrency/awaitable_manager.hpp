@@ -17,12 +17,10 @@
 
 namespace lambda::con
 {
-    struct task;
-
     class awaitable_manager
     {
     public:
-        explicit awaitable_manager(thread_pool& Pool, memory::arena& CoroutineArena);
+        explicit awaitable_manager(thread_pool& Pool);
 
         awaitable_manager(awaitable_manager const& Other) = delete;
         auto operator=(awaitable_manager const& Other) -> awaitable_manager& = delete;
@@ -74,12 +72,6 @@ namespace lambda::con
         auto pump() -> void;
 
     private:
-        // NOTE: allows task to directly access the arena for `operator new()`. alternative was exposing the arena
-        //       directly which is unnecessary amounts of exposure. (since every coroutine would also have access)
-        //       access to the awaitable_manager and thus the arena.) doing it this way minimises the risk of doing
-        //       something stupid, since the coroutine arena should only be used by the task type anyway.
-        friend struct task;
-
         struct timer_awaitable
         {
             std::chrono::steady_clock::time_point TimePoint;
@@ -95,7 +87,6 @@ namespace lambda::con
 
     private:
         thread_pool& m_Pool;
-        memory::arena& m_CoroutineArena;
 
         std::mutex m_Mutex;
         std::queue<std::coroutine_handle<>> m_NextTickQueue;

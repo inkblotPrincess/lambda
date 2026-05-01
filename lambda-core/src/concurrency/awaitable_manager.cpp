@@ -8,13 +8,11 @@
  */
 
 #include <core/concurrency/awaitable_manager.hpp>
-#include <core/concurrency/task.hpp>
 
 namespace lambda::con
 {
-    awaitable_manager::awaitable_manager(thread_pool& Pool, memory::arena& CoroutineArena)
+    awaitable_manager::awaitable_manager(thread_pool& Pool)
         : m_Pool{Pool}
-        , m_CoroutineArena{CoroutineArena}
         , m_Mutex{}
         , m_NextTickQueue{}
         , m_TimerQueue{}

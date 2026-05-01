@@ -10,8 +10,6 @@
 #pragma once
 
 #include <core/base/logging.hpp>
-#include <core/concurrency/awaitable_manager.hpp>
-#include <core/memory/arena.hpp>
 
 #include <coroutine>
 
@@ -21,19 +19,6 @@ namespace lambda::con
     {
         struct promise_type
         {
-            static auto operator new(std::size_t Size, awaitable_manager& Awaitable, auto&...) -> void*
-            {
-                if (auto* Memory = Awaitable.m_CoroutineArena.allocate_bytes(Size, alignof(promise_type)); Memory != nullptr)
-                    return Memory;
-
-                throw std::bad_alloc{};
-            }
-
-            static auto operator delete([[maybe_unused]] void* Memory, [[maybe_unused]] std::size_t Size) noexcept -> void
-            {
-                // arena does not perform individual frees so this is a no-op
-            }
-
             auto initial_suspend() -> std::suspend_never { return {}; }
             auto final_suspend() noexcept -> std::suspend_never { return {}; }
             auto return_void() -> void {}
