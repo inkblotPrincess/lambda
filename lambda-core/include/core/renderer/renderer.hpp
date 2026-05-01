@@ -11,10 +11,12 @@
 
 #include <core/base/error.hpp>
 #include <core/math/vector.hpp>
+#include <core/memory/arena.hpp>
 #include <core/os/window.hpp>
 
 #include <cstddef>
 #include <cstring>
+#include <span>
 #include <memory>
 
 namespace lambda::render
@@ -32,23 +34,31 @@ namespace lambda::render
     class command_buffer
     {
     public:
-        explicit command_buffer(std::size_t Capacity = 1024 * 1024);
+        command_buffer() = delete;
+        explicit command_buffer(std::span<std::byte> Buffer);
+
+        ~command_buffer() = default;
+
+        command_buffer(command_buffer const& Other) = delete;
+        auto operator=(command_buffer const& Other) -> command_buffer& = delete;
+
+        command_buffer(command_buffer&& Other) noexcept = default;
+        auto operator=(command_buffer&& Other) noexcept -> command_buffer& = default;
 
         template<class command_data>
         requires std::is_trivially_destructible_v<command_data>
         auto push(command_type Type, command_data const& Data) -> void
         {
-            auto const Offset = m_Buffer.size();
-            auto const Size   = sizeof(header) + sizeof(command_data);
+            auto const Size = sizeof(header) + sizeof(command_data);
 
-            expect(Offset + Size < m_Buffer.capacity(), "Out of capacity for command buffer");
-            m_Buffer.resize(Offset + Size);
+            expect(m_Offset + Size < m_Buffer.size(), "Out of capacity for command buffer");
 
-            auto* Header = reinterpret_cast<header*>(m_Buffer.data() + Offset);
+            auto* Header = reinterpret_cast<header*>(m_Buffer.data() + m_Offset);
             Header->Type = Type;
             Header->Size = sizeof(command_data);
 
             std::memcpy(Header + 1, &Data, sizeof(command_data));
+            m_Offset += Size;
         }
 
         template<class func_type>
@@ -56,7 +66,7 @@ namespace lambda::render
         auto for_each(func_type&& Func) const -> void
         {
             auto Offset = 0zu;
-            while (Offset < m_Buffer.size())
+            while (Offset < m_Offset)
             {
                 auto const* Header = reinterpret_cast<header const*>(m_Buffer.data() + Offset);
                 auto const* Data   = reinterpret_cast<void const*>(Header + 1);
@@ -77,7 +87,8 @@ namespace lambda::render
         };
 
     private:
-        std::vector<std::byte> m_Buffer;
+        std::span<std::byte> m_Buffer;
+        std::size_t m_Offset;
     };
 
     class command_list
@@ -109,17 +120,18 @@ namespace lambda::render
         vulkan,
     };
 
-    struct config
-    {
-        api Api;
-        std::size_t BufferSize;
-    };
-
     class renderer
     {
     public:
+        struct config
+        {
+            api Api;
+            std::size_t CommandBufferSize;
+        };
+
+    public:
         renderer() = delete;
-        renderer(config const& Config, os::window& Window);
+        renderer(renderer::config const& Config, os::window& Window, memory::arena& Arena);
 
         ~renderer() = default;
 
@@ -133,7 +145,7 @@ namespace lambda::render
         requires std::invocable<func_type&, command_list&>
         auto submit(func_type&& Func) -> void
         {
-            auto Commands = command_list{m_Buffer};
+            auto Commands = command_list{m_CommandBuffer};
             std::invoke(std::forward<func_type>(Func), Commands);
         }
 
@@ -143,6 +155,7 @@ namespace lambda::render
     private:
         os::window& m_Window;
         std::unique_ptr<backend> m_Backend;
-        command_buffer m_Buffer;
+
+        command_buffer m_CommandBuffer;
     };
 } // namespace lambda::render

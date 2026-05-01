@@ -55,13 +55,15 @@ namespace lambda::runtime
         log::add_sink(std::make_unique<io::ostream_sink>(std::move(SyncedStreams[1]), log::level::warn, log::level::fatal));
         log::register_thread("main");
 
+        auto PersistentArena = memory::arena{memory::mb_to_b(16zu)};
+
         auto Window = os::window{{.Height = 720u, .Width = 1080u, .Title = Options.WindowTitle, .StartMode = os::window_mode::windowed}};
-        auto Renderer = render::renderer{{.Api = render::api::opengl, .BufferSize = 1024 * 1024}, Window};
+        auto Renderer = render::renderer{{.Api = render::api::opengl, .CommandBufferSize = 1024 * 1024}, Window, PersistentArena};
 
         auto Running = true;
         Window.set_event_handler([&Running](os::window_event const& Event) noexcept {
             Event >> match {
-                [&Running]([[maybe_unused]] os::window_quit_event const& QuitEvent) noexcept
+                [&Running]([[maybe_unused]] os::window_quit_event const&) noexcept
                 {
                     Running = false;
                     log::info("Window quit event posted");
@@ -72,8 +74,6 @@ namespace lambda::runtime
             return Running;
         });
 
-        auto FrameArena = memory::arena{memory::mb_to_b(1zu)};
-
         auto ThreadPool = con::thread_pool{};
         auto AwaitableManager = con::awaitable_manager{ThreadPool};
 
@@ -82,8 +82,6 @@ namespace lambda::runtime
 
         while (Running)
         {
-            FrameArena.reset();
-            
             Window.process_events();
             if (!Running)
                 break;

@@ -30,14 +30,16 @@ namespace lambda::render
         }
     } // namespace detail
 
-    command_buffer::command_buffer(std::size_t Capacity)
+    command_buffer::command_buffer(std::span<std::byte> Buffer)
+        : m_Buffer{Buffer}
+        , m_Offset{0zu}
     {
-        m_Buffer.reserve(Capacity);
+
     }
 
     auto command_buffer::clear() noexcept -> void
     {
-        m_Buffer.clear();
+        m_Offset = 0zu;
     }
 
     command_list::command_list(command_buffer& Buffer)
@@ -61,22 +63,21 @@ namespace lambda::render
         m_Buffer.push(command_type::clear, clear_command{RGBA});
     }
 
-    renderer::renderer(config const& Config, os::window& Window)
+    renderer::renderer(renderer::config const& Config, os::window& Window, memory::arena& Arena)
         : m_Window{Window}
         , m_Backend{detail::make_api(Config.Api, m_Window)}
-        , m_Buffer{Config.BufferSize}
+        , m_CommandBuffer{Arena.allocate<std::byte>(Config.CommandBufferSize)}
     {
 
     }
 
     auto renderer::begin_frame() -> void
     {
-        m_Buffer.clear();
         m_Backend->begin_frame();
     }
 
     auto renderer::end_frame() -> void
     {
-        m_Backend->end_frame(m_Buffer);
+        m_Backend->end_frame(m_CommandBuffer);
     }
 } // namespace lambda::render
